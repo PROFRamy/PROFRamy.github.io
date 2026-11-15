@@ -78,7 +78,7 @@ function notice(id,message,style){
 // Accessible field-level validation: show the exact issue next to its input.
 const fieldMessages={
  fullName:"اكتب اسم الطالب (حرفين على الأقل).",
- username:"اسم المستخدم لازم يكون من 3 إلى 30 حرف إنجليزي أو رقم أو شرطة سفلية (_).",
+ username:"رقم الموبايل لازم يكون 11 رقمًا، ويبدأ بـ 010 أو 011 أو 012 أو 015.",
  regEmail:"اكتب بريدًا إلكترونيًا صحيحًا، مثل student@gmail.com.",
  regPassword:"كلمة المرور لازم تكون 8 أحرف على الأقل.",
  confirmPassword:"تأكيد كلمة المرور غير مطابق. اكتب نفس كلمة المرور.",
@@ -97,7 +97,7 @@ function checkField(id){
  const input=$(id);if(!input)return true;
  let error="";
  if(id==="fullName"&&input.value.trim().length<2)error=fieldMessages[id];
- if(id==="username"&&!/^[A-Za-z0-9_]{3,30}$/.test(input.value.trim()))error=fieldMessages[id];
+ if(id==="username"&&!/^01[0125][0-9]{8}$/.test(input.value.trim()))error=fieldMessages[id];
  if((id==="regEmail"||id==="loginEmail")&&(!input.value.trim()||!input.checkValidity()))error=fieldMessages[id];
  if(id==="regPassword"&&input.value.length<8)error=fieldMessages[id];
  if(id==="confirmPassword"&&input.value!==$("regPassword").value)error=fieldMessages[id];
@@ -105,6 +105,17 @@ function checkField(id){
  if(id==="departmentOther"&&selectValue("stage")==="university"&&selectValue("uniDepartment")==="other"&&(input.value.trim().length<2||input.value.trim().length>70))error=fieldMessages[id];
  fieldError(id,error);return !error;
 }
+// Keep phone input digits-only, including Arabic/Eastern Arabic numerals pasted from phones.
+function normalizeMobile(value){
+ return String(value).replace(/[٠-٩۰-۹]/g,char=>{
+  const code=char.charCodeAt(0);
+  return String(code>=0x06F0 ? code-0x06F0 : code-0x0660);
+ }).replace(/[^0-9]/g,"").slice(0,11);
+}
+$("username").addEventListener("input",event=>{
+ const input=event.currentTarget, cleaned=normalizeMobile(input.value);
+ if(input.value!==cleaned)input.value=cleaned;
+});
 Object.keys(fieldMessages).forEach(id=>{
  const input=$(id);if(!input)return;
  input.addEventListener("blur",()=>checkField(id));
@@ -187,7 +198,7 @@ registerForm.addEventListener("submit",async event=>{
   const fullName=$("fullName").value.trim(),username=$("username").value.trim(),email=$("regEmail").value.trim().toLowerCase();
   const password=$("regPassword").value;
   if(fullName.length<2){notice("regNotice","اكتب اسم الطالب بشكل صحيح.","error");return}
-  if(!/^[A-Za-z0-9_]{3,30}$/.test(username)){notice("regNotice","اسم المستخدم يجب أن يتكون من 3 إلى 30 حرفًا إنجليزيًا أو رقمًا أو _","error");return}
+  if(!/^01[0125][0-9]{8}$/.test(username)){fieldError("username",fieldMessages.username);notice("regNotice",fieldMessages.username,"error");return}
   if(password.length<8||password!==$("confirmPassword").value){notice("regNotice","تأكد من تطابق كلمتي المرور، وأنهما 8 أحرف على الأقل.","error");return}
   registering=true;setBusy(true);
   try{
