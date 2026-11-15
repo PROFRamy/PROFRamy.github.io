@@ -238,6 +238,8 @@ function studyDescription(parent,text){
 }
 function studyRender(){
  const route=studyRoute(),active=!!route.type;
+ // Remove the right-hand marketing panel only while the full lesson is open.
+ document.body.classList.toggle("omega-reading",active&&!!route.id);
  $("studentWelcome").hidden=active;
  $("feedStatus").hidden=active;
  $("dashboardGrid").hidden=active;
@@ -283,7 +285,7 @@ function studyRender(){
  }
  const item=matches.find(item=>item.id===route.id);
  if(!item){$("navigatorCount").textContent="";list.append(studyElement("p","student-empty","هذا المحتوى غير متاح في مجموعتك حاليًا. قد يكون نُقل أو حُذف."));return}
- $("navigatorTitle").textContent=item.title||"الشرح";
+ $("navigatorTitle").textContent="قراءة "+omegaOne[type];
  $("navigatorCount").textContent=omegaOne[type];
  const article=studyElement("article","student-detail");
  article.append(studyElement("h4","",item.title||"محتوى جديد"));
@@ -339,6 +341,7 @@ function startFeed(profile){
 }
 
 function showAuthentication(){
+  document.body.classList.remove("omega-reading");
   stopFeed();omegaItems=[];
   $("authViews").hidden=false;
   $("dashboard").hidden=true;
