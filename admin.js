@@ -5,6 +5,17 @@ const prep=["الصف الأول الإعدادي","الصف الثاني الإ
 const typeNames={lesson:"درس",exercise:"تدريب",revision:"مراجعة",announcement:"إعلان"};
 const deptNames={english:"اللغة الإنجليزية",english_translation:"اللغة الإنجليزية والترجمة",french:"اللغة الفرنسية",other:"قسم آخر"};
 const stageNames={primary:"المرحلة الابتدائية",preparatory:"المرحلة الإعدادية",university:"المرحلة الجامعية"};
+const knownSubjects=/^(قصة|القصة|قواعد|القواعد|صوتيات|الصوتيات|ترجمة|الترجمة|الأدب|أدب|دراما|شعر|رواية|نصوص|نحو|قراءة|علم اللغة|علم اللغة النصي|لسانيات|تكنولوجيا المعلومات|اللغة العربية|اللغة الإنجليزية|اللغة الفرنسية|فرنسية الصحافة|قصة قصيرة|الترجمة من الإنجليزية إلى العربية|Grammar|Story|Phonetics|Linguistics|Literature|Drama|Poetry|Translation|ICT)$/i;
+function inferSubject(item){
+ const named=tidy(item.subject||"");if(named)return named;
+ const first=String(item.title||"").split(/\s+[-–—]\s+|[:：]/)[0].trim();
+ return knownSubjects.test(first)?first:"مواد غير مصنفة";
+}
+function updateSubjectVisibility(){
+ const needsSubject=$("contentType").value!=="announcement";
+ $("subjectBox").hidden=!needsSubject;
+ $("contentSubject").required=needsSubject;
+}
 const cfg=window.OMEGA_FIREBASE_CONFIG||{};
 let auth,db,authApi,store,unsubscribe=null,isSaving=false,items=[],adminReady=false,editingOriginal=null;
 
@@ -31,10 +42,11 @@ function updateTargets(){
 }
 $("targetStage").addEventListener("change",updateTargets);
 $("targetDepartment").addEventListener("change",updateTargets);
+$("contentType").addEventListener("change",updateSubjectVisibility);
 $("targetGrade").addEventListener("change",previewPlacement);
 $("targetLevel").addEventListener("change",previewPlacement);
 $("otherDepartment").addEventListener("input",previewPlacement);
-updateTargets();
+updateTargets();updateSubjectVisibility();
 function readTarget(){
  const stage=$("targetStage").value;
  let grade="",department="",level="",departmentOther="";
@@ -76,7 +88,7 @@ function previewPlacement(){
  if(!isSaving)$("saveContent").textContent=moved?"حفظ ونقل المحتوى":editingOriginal?"حفظ التعديلات":"حفظ المحتوى";
 }
 function resetEditor(){
- $("contentForm").reset();$("editingId").value="";editingOriginal=null;$("placementTip").hidden=true;
+ $("contentForm").reset();$("editingId").value="";editingOriginal=null;$("placementTip").hidden=true;updateSubjectVisibility();
  $("editorHeading").textContent="إضافة محتوى جديد";updateTargets();
  message("formStatus","اختر المجموعة المستهدفة ثم احفظ المحتوى أو المسودة.");
 }
@@ -98,7 +110,7 @@ function displayItems(){
   const state=element("span","pill"+(item.published?"":" draft"),item.published?"منشور":"مسودة");
   const title=element("h3","",item.title||"بدون عنوان");
   const desc=element("p","",item.description||"");
-  const details=element("div","meta",(typeNames[item.type]||"محتوى")+" • "+targetLabel(item));
+  const details=element("div","meta",(typeNames[item.type]||"محتوى")+" • "+(item.type==="announcement"?"":"المادة: "+inferSubject(item)+" • ")+targetLabel(item));
   const actions=element("div","buttons");
   const edit=element("button","btn light","تعديل التفاصيل");edit.type="button";
   edit.addEventListener("click",()=>editItem(item));
@@ -114,7 +126,9 @@ function displayItems(){
 }
 function editItem(item,focusPlacement=false){
  $("editingId").value=item.id;editingOriginal={audienceKey:item.audienceKey,label:targetLabel(item)};
- $("contentType").value=item.type;$("targetStage").value=item.stage;updateTargets();
+ $("contentType").value=item.type;updateSubjectVisibility();
+ $("contentSubject").value=item.type==="announcement"?"":inferSubject(item);
+ $("targetStage").value=item.stage;updateTargets();
  if(item.stage==="university"){
   $("targetDepartment").value=item.department;updateTargets();
   $("otherDepartment").value=item.departmentOther||"";
@@ -143,6 +157,9 @@ $("contentForm").addEventListener("submit",async e=>{
  e.preventDefault();
  if(!adminReady||isSaving)return;
  const title=tidy($("contentTitle").value);
+ const type=$("contentType").value;
+ const subject=type==="announcement"?"":tidy($("contentSubject").value);
+ if(type!=="announcement"&&(subject.length<2||subject.length>70)){message("formStatus","اكتب اسم المادة الدراسية من حرفين إلى 70 حرفًا حتى تظهر الدروس داخل المادة الصحيحة.","error");$("contentSubject").focus();return}
  const description=$("contentDescription").value.trim();
  const inputUrl=$("contentUrl").value.trim();
  const url=safeUrl(inputUrl);
@@ -154,7 +171,7 @@ $("contentForm").addEventListener("submit",async e=>{
  const editing=$("editingId").value;
  const moved=!!(editing&&editingOriginal&&editingOriginal.audienceKey!==target.audienceKey);
  const data={
-  type:$("contentType").value,title,description,url,published:$("isPublished").checked,
+  type,subject,title,description,url,published:$("isPublished").checked,
   ...target,updatedAt:store.serverTimestamp()
  };
  if(!Object.hasOwn(typeNames,data.type)){message("formStatus","اختر نوع المحتوى.","error");return}
@@ -171,7 +188,7 @@ $("contentForm").addEventListener("submit",async e=>{
   message("formStatus",moved?"تم نقل المحتوى بنجاح إلى: "+targetLabel(target)+(data.published?" — سيظهر للطلاب في المجموعة الجديدة فقط.":" — سيظل مسودة حتى تنشره."):"تم حفظ المحتوى بنجاح.","good");
  }catch(err){
   message("formStatus",err.code==="permission-denied"?
-   "تم رفض الحفظ بسبب قواعد Firestore. انشر أحدث قواعد الأمان وتأكد من تفعيل حساب المدير.":
+   "تم رفض الحفظ بسبب قواعد Firestore. انشر قواعد الأمان الجديدة التي تسمح بحقل subject، وتأكد من تفعيل حساب المدير.":
    "تعذر حفظ المحتوى. تحقق من الاتصال والحقول ثم حاول مجددًا.","error");
  }finally{setBusy(false)}
 });
