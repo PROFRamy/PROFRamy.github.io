@@ -1,6 +1,6 @@
 // OMEGA administrator console. The Firestore rules, not this interface, enforce privileges.
 import { bindRichToolbar, setEditorContent, editorResult } from "./omega-rich.js?v=20261115-rich1";
-import { MEDIA_LIMIT, MEDIA_TYPES, checkMediaList, mediaUrl, renderMedia } from "./omega-media.js?v=20261115-media1";
+import { MEDIA_LIMIT, MEDIA_TYPES, checkMediaList, mediaUrl, renderMedia, audioSourcePlan } from "./omega-media.js?v=20261115-audio2";
 const $=id=>document.getElementById(id);
 const primary=["الصف الأول الابتدائي","الصف الثاني الابتدائي","الصف الثالث الابتدائي","الصف الرابع الابتدائي","الصف الخامس الابتدائي","الصف السادس الابتدائي"];
 const prep=["الصف الأول الإعدادي","الصف الثاني الإعدادي","الصف الثالث الإعدادي"];
@@ -40,7 +40,17 @@ function addMediaRow(item={}){
  urlLabel.textContent="رابط الملف HTTPS";
  const url=document.createElement("input");url.className="omega-media-urlfield";
  url.type="url";url.maxLength=1200;url.value=item.url||"";url.dir="ltr";
- url.placeholder="https://example.com/lesson.pdf";urlLabel.append(url);
+ url.placeholder="https://example.com/lesson.mp3";urlLabel.append(url);
+ const advice=document.createElement("p");advice.className="omega-media-advice";advice.setAttribute("role","status");
+ function refreshAdvice(){
+  if(type.value!=="audio"){advice.textContent="";advice.hidden=true;return}
+  advice.hidden=false;
+  if(!url.value.trim()){advice.textContent="💡 الصوت يحتاج رابطًا مباشرًا لملف MP3/M4A أو رابط مشاركة Google Drive عام.";return}
+  advice.textContent=audioSourcePlan(url.value.trim()).hint;
+ }
+ type.addEventListener("change",refreshAdvice);
+ url.addEventListener("input",refreshAdvice);
+ refreshAdvice();
  const actions=document.createElement("div");actions.className="omega-media-actions";
  const up=document.createElement("button");up.type="button";up.textContent="↑ لأعلى";up.setAttribute("aria-label","تحريك المرفق لأعلى");
  const down=document.createElement("button");down.type="button";down.textContent="↓ لأسفل";down.setAttribute("aria-label","تحريك المرفق لأسفل");
@@ -50,7 +60,7 @@ function addMediaRow(item={}){
  down.addEventListener("click",()=>{const next=box.nextElementSibling;if(next){box.parentNode.insertBefore(next,box);mediaCount()}});
  remove.addEventListener("click",()=>{box.remove();mediaCount()});
  actions.append(up,down,remove);
- box.append(typeLabel,titleLabel,urlLabel,actions);
+ box.append(typeLabel,titleLabel,urlLabel,advice,actions);
  $("mediaRows").append(box);
  mediaCount();
 }
