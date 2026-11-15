@@ -107,7 +107,7 @@ html.omega-mobile .choice-grid .opt span{min-height:68px!important}
 <form id="registerForm" class="form-area" autocomplete="on" novalidate>
 <div class="two">
 <div class="field"><label for="fullName">اسم الطالب</label><input id="fullName" autocomplete="name" type="text" maxlength="70" required placeholder="الاسم الكامل"><span class="field-error" id="fullNameError" role="alert" hidden></span></div>
-<div class="field"><label for="username">اسم المستخدم (User)</label><input id="username" autocomplete="nickname" type="text" maxlength="30" minlength="3" pattern="[A-Za-z0-9_]{3,30}" dir="ltr" required placeholder="example_123"><span class="field-error" id="usernameError" role="alert" hidden></span><p class="micro">حروف إنجليزية وأرقام وشرطة سفلية فقط.</p></div>
+<div class="field"><label for="username">رقم الموبايل (اسم المستخدم)</label><input id="username" autocomplete="tel-national" type="tel" inputmode="numeric" maxlength="11" minlength="11" pattern="01[0125][0-9]{8}" dir="ltr" required placeholder="01XXXXXXXXX" aria-describedby="usernameHelp usernameError"><span class="field-error" id="usernameError" role="alert" hidden></span><p class="micro" id="usernameHelp">اكتب رقم موبايل مصري مكوّن من 11 رقمًا، يبدأ بـ 010 أو 011 أو 012 أو 015.</p></div>
 </div>
 <div class="field"><label for="regEmail">البريد الإلكتروني للطالب أو ولي الأمر</label><input id="regEmail" type="email" autocomplete="email" required placeholder="example@email.com"><span class="field-error" id="regEmailError" role="alert" hidden></span></div>
 <div class="two">
