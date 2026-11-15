@@ -61,7 +61,16 @@ service cloud.firestore {
         );
     }
 
-    function validContent(d) {
+
+    // Media are external public HTTPS links; no file bytes are stored in Firestore.
+    function validMediaItem(item) {
+      return item is map
+        && item.keys().hasAll(['type', 'title', 'url'])
+        && item.keys().hasOnly(['type', 'title', 'url'])
+        && item.type in ['image', 'audio', 'pdf']
+        && item.title is string && item.title.size() >= 1 && item.title.size() <= 100
+        && item.url is string && item.url.size() >= 9 && item.url.size() <= 1200
+        && item.url.matches('^https://.+
       return d.keys().hasAll([
           'ownerId', 'type', 'title', 'description', 'url', 'published',
           'stage', 'grade', 'department', 'level', 'departmentOther', 'audienceKey',
@@ -70,7 +79,7 @@ service cloud.firestore {
         && d.keys().hasOnly([
           'ownerId', 'type', 'title', 'description', 'url', 'published',
           'stage', 'grade', 'department', 'level', 'departmentOther', 'audienceKey',
-          'subject', 'richHtml', 'createdAt', 'updatedAt'
+          'subject', 'richHtml', 'media', 'createdAt', 'updatedAt'
         ])
         && d.ownerId is string && d.ownerId.size() > 0
         && d.type in ['lesson', 'exercise', 'revision', 'announcement']
@@ -80,9 +89,117 @@ service cloud.firestore {
         && d.description is string && d.description.size() <= 6000
         && d.get('richHtml', '') is string
         && d.get('richHtml', '').size() <= 60000
+        && validMedia(d.get('media', []))
         && d.url is string && d.url.size() <= 1200
         && (d.url == '' || d.url.matches('^https://.+$'))
-        && (d.description.size() > 0 || d.url.size() > 0 || d.get('richHtml', '').size() > 0)
+        && (d.description.size() > 0 || d.url.size() > 0 || d.get('richHtml', '').size() > 0 || d.get('media', []).size() > 0)
+        && d.published is bool
+        && validPlacement(d)
+        && d.audienceKey is string
+        && d.audienceKey == targetKey(d);
+    }
+
+    // An administrator cannot be created, changed, or removed by client code.
+    match /admins/{uid} {
+      allow get: if signedInOwner(uid);
+      allow list, create, update, delete: if false;
+    }
+
+    match /contentItems/{itemId} {
+      allow get, list: if isAdmin() || studentContentAccess();
+      allow create: if isAdmin()
+        && validContent(request.resource.data)
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAdmin()
+        && validContent(request.resource.data)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
+    match /students/{uid} {
+      allow get: if signedInOwner(uid);
+      allow list: if false;
+      allow create: if signedInOwner(uid)
+        && request.resource.data.keys().hasAll([
+          'uid', 'fullName', 'username', 'email', 'nationalId',
+          'stage', 'grade', 'department', 'level', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid', 'fullName', 'username', 'email', 'nationalId',
+          'stage', 'grade', 'department', 'level', 'departmentOther', 'createdAt'
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.fullName is string
+        && request.resource.data.fullName.size() >= 2
+        && request.resource.data.fullName.size() <= 70
+        && request.resource.data.username is string
+        && request.resource.data.username.matches('^01[0125][0-9]{8}$')
+        && request.resource.data.nationalId is string
+        && (
+          request.resource.data.nationalId == ''
+          || request.resource.data.nationalId.matches('^[0-9]{14}$')
+        )
+        && request.resource.data.createdAt == request.time
+        && validPlacement(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // Deny all other document access.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+);
+    }
+    function validMediaAt(items, index) {
+      return items.size() <= index || validMediaItem(items[index]);
+    }
+    function validMedia(items) {
+      return items is list
+        && items.size() <= 12
+        && validMediaAt(items, 0)
+        && validMediaAt(items, 1)
+        && validMediaAt(items, 2)
+        && validMediaAt(items, 3)
+        && validMediaAt(items, 4)
+        && validMediaAt(items, 5)
+        && validMediaAt(items, 6)
+        && validMediaAt(items, 7)
+        && validMediaAt(items, 8)
+        && validMediaAt(items, 9)
+        && validMediaAt(items, 10)
+        && validMediaAt(items, 11);
+    }
+
+    function validContent(d) {
+      return d.keys().hasAll([
+          'ownerId', 'type', 'title', 'description', 'url', 'published',
+          'stage', 'grade', 'department', 'level', 'departmentOther', 'audienceKey',
+          'createdAt', 'updatedAt'
+        ])
+        && d.keys().hasOnly([
+          'ownerId', 'type', 'title', 'description', 'url', 'published',
+          'stage', 'grade', 'department', 'level', 'departmentOther', 'audienceKey',
+          'subject', 'richHtml', 'media', 'createdAt', 'updatedAt'
+        ])
+        && d.ownerId is string && d.ownerId.size() > 0
+        && d.type in ['lesson', 'exercise', 'revision', 'announcement']
+        && d.title is string && d.title.size() >= 3 && d.title.size() <= 140
+        && d.get('subject', '') is string
+        && d.get('subject', '').size() <= 70
+        && d.description is string && d.description.size() <= 6000
+        && d.get('richHtml', '') is string
+        && d.get('richHtml', '').size() <= 60000
+        && validMedia(d.get('media', []))
+        && d.url is string && d.url.size() <= 1200
+        && (d.url == '' || d.url.matches('^https://.+$'))
+        && (d.description.size() > 0 || d.url.size() > 0 || d.get('richHtml', '').size() > 0 || d.get('media', []).size() > 0)
         && d.published is bool
         && validPlacement(d)
         && d.audienceKey is string
