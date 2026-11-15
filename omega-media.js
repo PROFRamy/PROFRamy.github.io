@@ -36,6 +36,39 @@ export function checkMediaList(items){
  }
  return clean;
 }
+
+/* Identify sharing-page links before passing them to an HTML5 audio player.
+   This does not bypass permissions: files must still be public and reachable. */
+export function audioSourcePlan(raw){
+ const href=mediaUrl(raw);
+ if(!href)return {mode:"invalid",hint:"رابط التسجيل غير صالح. استخدم رابط HTTPS صحيحًا."};
+ const u=new URL(href);
+ const host=u.hostname.toLowerCase();
+ if(host==="drive.google.com"){
+  let id="";
+  const m=u.pathname.match(/^\/file\/d\/([A-Za-z0-9_-]{10,})(?:\/|$)/);
+  if(m)id=m[1];
+  if(!id&&u.pathname==="/open"||!id&&u.pathname==="/uc")id=u.searchParams.get("id")||"";
+  if(/^[A-Za-z0-9_-]{10,}$/.test(id)){
+   return {mode:"drive",src:"https://drive.google.com/file/d/"+id+"/preview",hint:"رابط Google Drive: نعرض مشغل المعاينة بدل مشغل MP3. قد تمنع إعدادات المشاركة أو قيود Google التشغيل المدمج."};
+  }
+  return {mode:"unsupported",hint:"الرابط من Google Drive، لكن تعذر تحديد الملف. استخدم رابط مشاركة من نوع /file/d/.../view."};
+ }
+ if(host==="www.dropbox.com"||host==="dropbox.com"){
+  u.searchParams.delete("dl");
+  u.searchParams.set("raw","1");
+  return {mode:"audio",src:u.href,hint:"سيستخدم الموقع وضع عرض الملف مباشرة من Dropbox (raw=1). يجب أن تكون مشاركة الملف عامة."};
+ }
+ if(host==="github.com"){
+  const m=u.pathname.match(/^\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/);
+  if(m){
+   const rawUrl="https://raw.githubusercontent.com/"+m[1]+"/"+m[2]+"/"+m[3]+"/"+m[4];
+   return {mode:"audio",src:rawUrl,hint:"تم تحويل رابط صفحة ملف GitHub إلى رابط الملف الخام. لازم يكون المستودع عامًا."};
+  }
+ }
+ return {mode:"audio",src:href,hint:"لازم الرابط يرجّع بيانات ملف صوت فعلي مثل MP3 أو M4A، وليس صفحة مشاركة أو صفحة تسجيل دخول."};
+}
+
 const node=(tag,cls,txt)=>{
  const el=document.createElement(tag);
  if(cls)el.className=cls;
@@ -80,16 +113,42 @@ function zoomImage(m){
 function audioCard(m){
  const el=node("section","omega-media-card omega-media-audio");
  const header=node("div","omega-media-title","🎧 "+m.title);
+ const plan=audioSourcePlan(m.url);
+ el.append(header);
+ if(plan.mode==="drive"){
+  const frame=node("iframe","omega-media-drive-frame");
+  frame.src=plan.src;frame.title="معاينة تسجيل Google Drive: "+m.title;
+  frame.loading="lazy";frame.referrerPolicy="no-referrer";
+  frame.setAttribute("allow","autoplay");
+  frame.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-popups");
+  el.append(frame,node("p","omega-media-caption","مشغّل Google Drive: لو مفيش صوت، تأكد إن مشاركة الملف متاحة لأي شخص لديه الرابط. قد لا يسمح Google بتشغيله داخل مواقع أخرى."),link(m.url,"فتح التسجيل في Google Drive"));
+  return el;
+ }
+ if(plan.mode!=="audio"){
+  el.append(node("p","omega-media-error",plan.hint),link(m.url,"فحص رابط التسجيل"));
+  return el;
+ }
  const audio=node("audio","omega-media-player");
- audio.controls=true;audio.preload="none";audio.src=m.url;
+ audio.controls=true;audio.preload="metadata";
  audio.setAttribute("aria-label","تشغيل التسجيل الصوتي: "+m.title);
- audio.addEventListener("error",()=>{
-  const msg=el.querySelector(".omega-media-error");
-  if(msg)msg.hidden=false;
- });
- const err=node("p","omega-media-error","تعذر تشغيل الصوت داخل الصفحة؛ جرّب رابط الملف.");
+ const err=node("p","omega-media-error");
  err.hidden=true;
- el.append(header,audio,err,link(m.url,"فتح التسجيل"));
+ const retry=node("button","omega-media-retry","إعادة محاولة تشغيل الصوت");
+ retry.type="button";retry.hidden=true;
+ const guidance=node("p","omega-media-caption");
+ guidance.hidden=true;
+ function showAudioError(){
+  const code=audio.error?.code;
+  const explanation=code===2?"حدث خطأ بالشبكة أثناء تحميل الصوت.":code===3?"صيغة الصوت أو بيانات الملف لا يمكن فك ترميزها على جهازك.":code===4?"الرابط لا يحتوي ملفًا صوتيًا مدعومًا، أو الخدمة تمنع تشغيله مباشرة.":"تعذر تحميل التسجيل.";
+  err.textContent=explanation+" افتح رابط التسجيل للتأكد أنه يعمل بدون تسجيل دخول.";
+  err.hidden=false;retry.hidden=false;
+  guidance.textContent=plan.hint;guidance.hidden=false;
+ }
+ audio.addEventListener("error",showAudioError);
+ audio.addEventListener("loadedmetadata",()=>{err.hidden=true;retry.hidden=true;guidance.hidden=true});
+ retry.addEventListener("click",()=>{err.hidden=true;retry.hidden=true;audio.load()});
+ audio.src=plan.src;
+ el.append(audio,err,retry,guidance,link(m.url,"فتح رابط التسجيل للتحقق"));
  return el;
 }
 function pdfEmbedUrl(href){
