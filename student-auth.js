@@ -158,7 +158,12 @@ function selection(){
   return {stage,grade,department,level,departmentOther};
 }
 
-/* The student home only displays totals. Each category opens its own secure URL. */
+/* Single-page navigation: subjects, lesson titles and full content stay inside student.html.
+   Firebase rules still enforce the student's cohort for every returned document. */
+const omegaTypes={lesson:"الدروس",exercise:"التدريبات",revision:"المراجعات",announcement:"الإعلانات"};
+const omegaOne={lesson:"درس",exercise:"تدريب",revision:"مراجعة",announcement:"إعلان"};
+const omegaSubjects=/^(قصة|القصة|قواعد|القواعد|صوتيات|الصوتيات|ترجمة|الترجمة|الأدب|أدب|دراما|شعر|رواية|نصوص|نحو|قراءة|علم اللغة|علم اللغة النصي|لسانيات|تكنولوجيا المعلومات|اللغة العربية|اللغة الإنجليزية|اللغة الفرنسية|فرنسية الصحافة|قصة قصيرة|الترجمة من الإنجليزية إلى العربية|Grammar|Story|Phonetics|Linguistics|Literature|Drama|Poetry|Translation|ICT)$/i;
+let omegaItems=[];
 function cohortKey(profile){
  if(profile.stage==="primary"||profile.stage==="preparatory")return profile.stage+"|"+profile.grade;
  if(profile.stage==="university"){
@@ -167,10 +172,142 @@ function cohortKey(profile){
  }
  return "";
 }
+function studySubject(item){
+ const selected=String(item.subject||"").trim().replace(/\s+/g," ");
+ if(selected)return selected;
+ const first=String(item.title||"").split(/\s+[-–—]\s+|[:：]/)[0].trim();
+ return omegaSubjects.test(first)?first:"مواد غير مصنفة";
+}
+function studyElement(tag,cls,text){
+ const el=document.createElement(tag);
+ if(cls)el.className=cls;
+ if(text!==undefined)el.textContent=text;
+ return el;
+}
+function studyUrl(type=null,subject=null,id=null){
+ if(!type)return "";
+ const q=new URLSearchParams({type});
+ if(subject!==null)q.set("subject",subject);
+ if(id!==null)q.set("id",id);
+ return "#omega-study?"+q.toString();
+}
+function studyRoute(){
+ const h=location.hash;
+ if(!h.startsWith("#omega-study?"))return {type:null,subject:null,id:null};
+ const q=new URLSearchParams(h.slice("#omega-study?".length));
+ const type=q.get("type");
+ if(!Object.hasOwn(omegaTypes,type))return {type:null,subject:null,id:null};
+ return {type,subject:q.get("subject"),id:q.get("id")};
+}
+function studyOpen(type=null,subject=null,id=null){
+ const hash=studyUrl(type,subject,id);
+ const destination=location.pathname+location.search+hash;
+ if(location.pathname+location.search+location.hash!==destination)history.pushState({omegaStudy:true},"",destination);
+ studyRender();
+ $("dashboard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function studySafeHref(raw){
+ try{const u=new URL(raw);return u.protocol==="https:"&&!u.username&&!u.password?u.href:""}catch(_){return ""}
+}
+function studyInline(parent,raw){
+ for(const part of String(raw).split(/(\*\*[^*\n]+\*\*)/g)){
+  if(!part)continue;
+  if(part.startsWith("**")&&part.endsWith("**"))parent.append(studyElement("strong","",part.slice(2,-2)));
+  else parent.append(document.createTextNode(part));
+ }
+}
+function studyDescription(parent,text){
+ const lines=String(text||"").replace(/\r\n?/g,"\n").split("\n");
+ let current=[],bulletList=null;
+ function flush(){
+  if(!current.length)return;
+  const p=studyElement("p","");
+  current.forEach((line,i)=>{if(i)p.append(document.createElement("br"));studyInline(p,line)});
+  parent.append(p);current=[];
+ }
+ for(const line of lines){
+  const trimmed=line.trim();
+  if(!trimmed){flush();bulletList=null;continue}
+  const heading=trimmed.match(/^(#{1,4})\s+(.+)$/);
+  if(heading){flush();bulletList=null;const el=studyElement(heading[1].length===1?"h2":"h3","");studyInline(el,heading[2]);parent.append(el);continue}
+  const bullet=trimmed.match(/^[-•]\s+(.+)$/);
+  if(bullet){flush();if(!bulletList){bulletList=studyElement("ul","");parent.append(bulletList)}const li=studyElement("li","");studyInline(li,bullet[1]);bulletList.append(li);continue}
+  bulletList=null;current.push(line);
+ }
+ flush();
+}
+function studyRender(){
+ const route=studyRoute(),active=!!route.type;
+ $("studentWelcome").hidden=active;
+ $("feedStatus").hidden=active;
+ $("dashboardGrid").hidden=active;
+ $("studentNavigator").hidden=!active;
+ if(!active){document.title="بوابة طلاب اوميجا";return}
+ const list=$("navigatorList");list.replaceChildren();
+ const type=route.type,items=omegaItems.filter(item=>item.type===type);
+ const bread=$("navigatorTrail");bread.replaceChildren();
+ const crumb=(text,subject,id)=>{
+  bread.append(document.createTextNode(" / "));
+  if(subject===undefined)bread.append(document.createTextNode(text));
+  else{
+   const b=studyElement("button","",text);b.type="button";b.addEventListener("click",()=>studyOpen(type,subject,id));bread.append(b);
+  }
+ };
+ crumb(omegaTypes[type],null,null);
+ if(route.subject!==null)crumb(route.subject,null===route.id?undefined:route.subject,null);
+ $("navigatorBack").textContent=route.id?"العودة للدروس":route.subject!==null?"العودة للمواد":"العودة للأقسام";
+ $("navigatorBack").onclick=()=>route.id?studyOpen(type,route.subject):route.subject!==null?studyOpen(type):studyOpen();
+ $("navigatorTitle").textContent=route.id?"الشرح":route.subject!==null?route.subject:type==="announcement"?"الإعلانات":"المواد الدراسية";
+ function summary(count){$("navigatorCount").textContent=count+" "+(type==="lesson"?"درس":"عنصر")}
+ if(!route.id&&route.subject===null&&type!=="announcement"){
+  const groups=new Map();
+  for(const item of items){const subject=studySubject(item);if(!groups.has(subject))groups.set(subject,[]);groups.get(subject).push(item)}
+  summary(items.length);
+  if(!groups.size){list.append(studyElement("p","student-empty","لا يوجد محتوى منشور حاليًا."));return}
+  for(const [name,entries] of groups){
+   const b=studyElement("button","student-subject");b.type="button";
+   b.append(studyElement("span","student-subject-name","📁 "+name),studyElement("span","student-subject-count",entries.length+" "+(type==="lesson"?"دروس":"عناصر")));
+   b.addEventListener("click",()=>studyOpen(type,name));list.append(b);
+  }
+  return;
+ }
+ const matches=type==="announcement"?items:items.filter(item=>studySubject(item)===route.subject);
+ if(!route.id){
+  summary(matches.length);
+  if(!matches.length){list.append(studyElement("p","student-empty","لا توجد عناوين في هذا القسم حاليًا."));return}
+  matches.forEach((item,i)=>{
+   const b=studyElement("button","student-lesson");b.type="button";
+   b.append(studyElement("span","student-lesson-index",String(i+1)),studyElement("span","student-lesson-title",item.title||"درس جديد"));
+   b.addEventListener("click",()=>studyOpen(type,route.subject,item.id));list.append(b);
+  });return;
+ }
+ const item=matches.find(item=>item.id===route.id);
+ if(!item){$("navigatorCount").textContent="";list.append(studyElement("p","student-empty","هذا المحتوى غير متاح في مجموعتك حاليًا. قد يكون نُقل أو حُذف."));return}
+ $("navigatorTitle").textContent=item.title||"الشرح";
+ $("navigatorCount").textContent=omegaOne[type];
+ const article=studyElement("article","student-detail");
+ article.append(studyElement("h4","",item.title||"محتوى جديد"));
+ const body=studyElement("div","student-detail-body");
+ if(item.description)studyDescription(body,item.description);
+ else body.append(studyElement("p","","لا يوجد شرح نصي لهذا الدرس."));
+ article.append(body);
+ if(item.url){
+  const href=studySafeHref(item.url);
+  if(href){const a=studyElement("a","student-resource","عرض المرجع المرفق");a.href=href;article.append(a)}
+ }
+ list.append(article);
+}
+$("navigatorHome").addEventListener("click",()=>studyOpen());
+document.querySelectorAll("[data-omega-type]").forEach(button=>{
+ button.addEventListener("click",()=>studyOpen(button.dataset.omegaType));
+});
+window.addEventListener("popstate",studyRender);
 function renderFeed(documents){
+ omegaItems=documents.filter(item=>Object.hasOwn(omegaTypes,item.type));
  const totals={lesson:0,exercise:0,revision:0,announcement:0};
- for(const item of documents){if(Object.hasOwn(totals,item.type))totals[item.type]++}
+ for(const item of omegaItems)totals[item.type]++;
  for(const type of Object.keys(totals))$(type+"Count").textContent=String(totals[type]);
+ studyRender();
 }
 function stopFeed(){
  if(feedUnsubscribe){feedUnsubscribe();feedUnsubscribe=null}
@@ -187,7 +324,7 @@ function startFeed(profile){
   firestoreLib.where("published","==",true)
  );
  feedUnsubscribe=firestoreLib.onSnapshot(query,snapshot=>{
-  const records=snapshot.docs.map(d=>d.data());
+  const records=snapshot.docs.map(d=>({id:d.id,...d.data()}));
   records.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   renderFeed(records);
   $("feedStatus").className="notice good";
@@ -202,7 +339,7 @@ function startFeed(profile){
 }
 
 function showAuthentication(){
-  stopFeed();renderFeed([]);
+  stopFeed();omegaItems=[];
   $("authViews").hidden=false;
   $("dashboard").hidden=true;
 }
@@ -214,6 +351,7 @@ function dashboard(profile){
   for(const value of labels){const span=document.createElement("span");span.textContent=value;tags.appendChild(span)}
   $("authViews").hidden=true;$("dashboard").hidden=false;
   startFeed(profile);
+  studyRender();
 }
 function explain(error){
   switch(error?.code){
