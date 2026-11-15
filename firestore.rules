@@ -10,15 +10,22 @@ service cloud.firestore {
         && d.grade in [
           'الصف الأول الابتدائي','الصف الثاني الابتدائي','الصف الثالث الابتدائي',
           'الصف الرابع الابتدائي','الصف الخامس الابتدائي','الصف السادس الابتدائي'
-        ] && d.department == '' && d.level == ''
+        ] && d.department == '' && d.level == '' && d.get('departmentOther','') == '' && d.get('departmentOther','') == ''
       ) || (
         d.stage == 'preparatory'
         && d.grade in ['الصف الأول الإعدادي','الصف الثاني الإعدادي','الصف الثالث الإعدادي']
         && d.department == '' && d.level == ''
       ) || (
         d.stage == 'university' && d.grade == ''
-        && d.department in ['english','english_translation','french']
-        && d.level in ['المستوى الأول','المستوى الثاني','المستوى الثالث']
+        && d.department in ['english','english_translation','french','other']
+        && d.level in ['المستوى الأول','المستوى الثاني','المستوى الثالث','المستوى الرابع','خريج جامعي']
+        && (
+          (d.department == 'other'
+            && d.get('departmentOther','') is string
+            && d.get('departmentOther','').size() >= 2
+            && d.get('departmentOther','').size() <= 70)
+          || (d.department != 'other' && d.get('departmentOther','') == '')
+        )
       );
     }
     match /students/{uid} {
@@ -29,7 +36,7 @@ service cloud.firestore {
           'uid','fullName','username','email','stage','grade','department','level','createdAt'
         ])
         && request.resource.data.keys().hasOnly([
-          'uid','fullName','username','email','stage','grade','department','level','createdAt'
+          'uid','fullName','username','email','stage','grade','department','level','departmentOther','createdAt'
         ])
         && request.resource.data.uid == uid
         && request.resource.data.email == request.auth.token.email
