@@ -30,6 +30,9 @@
 .omega-media-drive-frame{display:block;width:100%;max-width:100%;min-height:145px;height:170px;border:1px solid #d6e2e9;border-radius:11px;background:#fff}
 .omega-media-retry{border:1px solid #d2a6a0;border-radius:9px;background:#fff5f4;color:#a92820;padding:8px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;align-self:flex-start}
 .omega-media-retry:hover{background:#ffefec}
+.omega-media-telegram{display:inline-flex;align-items:center;justify-content:center;width:fit-content;max-width:100%;background:#eaf7ee;color:#16803c;border:1px solid #b7dec1;border-radius:11px;padding:10px 16px;font-weight:800;font-size:13px;line-height:1.7;text-decoration:none}
+.omega-media-telegram:hover{background:#def3e5;text-decoration:none}
+.omega-media-telegram:focus-visible{outline:3px solid #16803c;outline-offset:2px}
 .omega-media-frame{width:100%;height:clamp(420px,70vh,850px);border:1px solid #d6e2e9;border-radius:11px;background:#fff}
 .omega-media-zoom{border:1px solid #b6d9c1;border-radius:9px;background:#eaf7ee;color:#16803c;padding:8px 12px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;align-self:flex-start}
 .omega-media-error{font-size:12px;color:#c62828}
