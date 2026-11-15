@@ -1,4 +1,5 @@
 // OMEGA administrator console. The Firestore rules, not this interface, enforce privileges.
+import { bindRichToolbar, setEditorContent, editorResult } from "./omega-rich.js?v=20261115-rich1";
 const $=id=>document.getElementById(id);
 const primary=["الصف الأول الابتدائي","الصف الثاني الابتدائي","الصف الثالث الابتدائي","الصف الرابع الابتدائي","الصف الخامس الابتدائي","الصف السادس الابتدائي"];
 const prep=["الصف الأول الإعدادي","الصف الثاني الإعدادي","الصف الثالث الإعدادي"];
@@ -18,6 +19,7 @@ function updateSubjectVisibility(){
 }
 const cfg=window.OMEGA_FIREBASE_CONFIG||{};
 let auth,db,authApi,store,unsubscribe=null,isSaving=false,items=[],adminReady=false,editingOriginal=null;
+const richControls=bindRichToolbar($("richEditor"),$("richToolbar"),$("richCounter"),$("richPreview"),$("richPreviewButton"));
 
 function message(id,text,kind=""){
  const el=$(id);el.textContent=text;el.className="note"+(kind?" "+kind:"");
@@ -89,6 +91,7 @@ function previewPlacement(){
 }
 function resetEditor(){
  $("contentForm").reset();$("editingId").value="";editingOriginal=null;$("placementTip").hidden=true;updateSubjectVisibility();
+ setEditorContent($("richEditor"),"","");richControls.clear();
  $("editorHeading").textContent="إضافة محتوى جديد";updateTargets();
  message("formStatus","اختر المجموعة المستهدفة ثم احفظ المحتوى أو المسودة.");
 }
@@ -109,7 +112,8 @@ function displayItems(){
   const box=element("article","item");
   const state=element("span","pill"+(item.published?"":" draft"),item.published?"منشور":"مسودة");
   const title=element("h3","",item.title||"بدون عنوان");
-  const desc=element("p","",item.description||"");
+  const snippet=String(item.description||"").trim();
+  const desc=element("p","",snippet.length>210?snippet.slice(0,210)+"…":snippet);
   const details=element("div","meta",(typeNames[item.type]||"محتوى")+" • "+(item.type==="announcement"?"":"المادة: "+inferSubject(item)+" • ")+targetLabel(item));
   const actions=element("div","buttons");
   const edit=element("button","btn light","تعديل التفاصيل");edit.type="button";
@@ -134,7 +138,9 @@ function editItem(item,focusPlacement=false){
   $("otherDepartment").value=item.departmentOther||"";
   $("targetLevel").value=item.level;
  }else $("targetGrade").value=item.grade;
- $("contentTitle").value=item.title;$("contentDescription").value=item.description||"";
+ $("contentTitle").value=item.title;
+ setEditorContent($("richEditor"),item.richHtml||"",item.description||"");
+ richControls.clear();
  $("contentUrl").value=item.url||"";$("isPublished").checked=!!item.published;
  $("editorHeading").textContent=focusPlacement?"تغيير مكان ظهور المحتوى":"تعديل المحتوى";
  $("placementTip").hidden=false;
@@ -160,18 +166,23 @@ $("contentForm").addEventListener("submit",async e=>{
  const type=$("contentType").value;
  const subject=type==="announcement"?"":tidy($("contentSubject").value);
  if(type!=="announcement"&&(subject.length<2||subject.length>70)){message("formStatus","اكتب اسم المادة الدراسية من حرفين إلى 70 حرفًا حتى تظهر الدروس داخل المادة الصحيحة.","error");$("contentSubject").focus();return}
- const description=$("contentDescription").value.trim();
+ const rich=editorResult($("richEditor"));
+ const description=rich.text.slice(0,6000);
+ const richHtml=rich.html;
+ if(!rich.valid||rich.textLength>40000){
+  message("formStatus","المحتوى طويل جدًا بالنسبة إلى درس واحد (الحد 40 ألف حرف، وحجم التنسيق 60 ألف حرف). قسّم الشرح إلى محاضرتين.","error");return;
+ }
  const inputUrl=$("contentUrl").value.trim();
  const url=safeUrl(inputUrl);
  if(title.length<3||title.length>140){message("formStatus","اكتب عنوانًا من 3 إلى 140 حرفًا.","error");return}
- if(description.length>6000||(!description&&!inputUrl)){message("formStatus","اكتب وصفًا للمحتوى أو رابطًا، بحد أقصى 6000 حرف.","error");return}
+ if(!rich.text&&!inputUrl){message("formStatus","اكتب نص الدرس أو أضف رابطًا صحيحًا.","error");return}
  if(inputUrl&&!url){message("formStatus","الرابط يجب أن يكون HTTPS صالحًا وأقل من 1200 حرف.","error");return}
  let target;
  try{target=readTarget()}catch(err){message("formStatus",err.message,"error");return}
  const editing=$("editingId").value;
  const moved=!!(editing&&editingOriginal&&editingOriginal.audienceKey!==target.audienceKey);
  const data={
-  type,subject,title,description,url,published:$("isPublished").checked,
+  type,subject,title,description,richHtml,url,published:$("isPublished").checked,
   ...target,updatedAt:store.serverTimestamp()
  };
  if(!Object.hasOwn(typeNames,data.type)){message("formStatus","اختر نوع المحتوى.","error");return}
@@ -188,7 +199,7 @@ $("contentForm").addEventListener("submit",async e=>{
   message("formStatus",moved?"تم نقل المحتوى بنجاح إلى: "+targetLabel(target)+(data.published?" — سيظهر للطلاب في المجموعة الجديدة فقط.":" — سيظل مسودة حتى تنشره."):"تم حفظ المحتوى بنجاح.","good");
  }catch(err){
   message("formStatus",err.code==="permission-denied"?
-   "تم رفض الحفظ بسبب قواعد Firestore. انشر قواعد الأمان الجديدة التي تسمح بحقل subject، وتأكد من تفعيل حساب المدير.":
+   "تم رفض الحفظ بسبب قواعد Firestore. انشر أحدث ملف firestore.rules الذي يسمح بحقل richHtml، وتأكد من صلاحيات المدير.":
    "تعذر حفظ المحتوى. تحقق من الاتصال والحقول ثم حاول مجددًا.","error");
  }finally{setBusy(false)}
 });
