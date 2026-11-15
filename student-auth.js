@@ -35,6 +35,8 @@ createOptions("departments","uniDepartment",departments);
 createOptions("uniLevels","uniLevel",levels);
 function selectValue(name){return document.querySelector('input[name="'+name+'"]:checked')?.value||""}
 function setStage(){
+  $("stageError").hidden=true;
+  $("stageGrid").classList.remove("has-error");
   const stage=selectValue("stage");
   show("primaryChoices",stage==="primary");
   show("prepChoices",stage==="preparatory");
@@ -121,9 +123,9 @@ function selection(){
   const stage=selectValue("stage"),grade=stage==="primary"?selectValue("primaryGrade"):stage==="preparatory"?selectValue("prepGrade"):"";
   const department=stage==="university"?selectValue("uniDepartment"):"";
   const level=stage==="university"?selectValue("uniLevel"):"";
-  if(!stage||stage==="secondary")throw Error("اختار المرحلة الدراسية المتاحة أولًا.");
-  if((stage==="primary"||stage==="preparatory")&&!grade)throw Error("اختار الصف الدراسي.");
-  if(stage==="university"&&(!department||!level))throw Error("اختار القسم الجامعي والمستوى الدراسي.");
+  if(!stage||stage==="secondary")throw Error("⚠️ اختار المرحلة الدراسية أولًا: ابتدائي أو إعدادي أو جامعي.");
+  if((stage==="primary"||stage==="preparatory")&&!grade)throw Error("⚠️ اختار الصف الدراسي من الخيارات الظاهرة.");
+  if(stage==="university"&&(!department||!level))throw Error("⚠️ اختار القسم الجامعي والمستوى الدراسي.");
   return {stage,grade,department,level};
 }
 function showAuthentication(){
@@ -145,7 +147,12 @@ function explain(error){
     case "auth/weak-password":return "كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل، ويفضل الجمع بين حروف وأرقام ورموز.";
     case "auth/invalid-credential":case "auth/wrong-password":case "auth/user-not-found":return "بيانات الدخول غير صحيحة.";
     case "auth/too-many-requests":return "محاولات كثيرة. حاول مرة أخرى لاحقًا.";
-    case "auth/network-request-failed":return "تعذر الاتصال بالإنترنت. تأكد من اتصالك ثم أعد المحاولة.";\n    case "auth/operation-not-allowed":return "طريقة تسجيل الدخول غير مفعلة حاليًا. تواصل مع إدارة اوميجا.";\n    case "auth/unauthorized-domain":return "الموقع غير مصرح له بتسجيل الدخول. تواصل مع الإدارة.";\n    case "auth/popup-blocked":return "المتصفح منع نافذة تسجيل الدخول. اسمح بالنوافذ المنبثقة وحاول مجددًا.";\n    case "auth/popup-closed-by-user":return "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية. حاول مرة أخرى.";\n    case "auth/account-exists-with-different-credential":return "هذا البريد مرتبط بطريقة دخول مختلفة. جرّب الطريقة التي سجلت بها أول مرة.";
+    case "auth/network-request-failed":return "تعذر الاتصال بالإنترنت. تأكد من اتصالك ثم أعد المحاولة.";
+    case "auth/operation-not-allowed":return "طريقة تسجيل الدخول غير مفعلة حاليًا. تواصل مع إدارة اوميجا.";
+    case "auth/unauthorized-domain":return "الموقع غير مصرح له بتسجيل الدخول. تواصل مع الإدارة.";
+    case "auth/popup-blocked":return "المتصفح منع نافذة تسجيل الدخول. اسمح بالنوافذ المنبثقة وحاول مجددًا.";
+    case "auth/popup-closed-by-user":return "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية. حاول مرة أخرى.";
+    case "auth/account-exists-with-different-credential":return "هذا البريد مرتبط بطريقة دخول مختلفة. جرّب الطريقة التي سجلت بها أول مرة.";
     case "permission-denied":return "تعذر حفظ بيانات الطالب. تأكد من إعداد قواعد Firestore أو تواصل مع الإدارة.";
     default:return "تعذر إكمال العملية. راجع إعدادات الخدمة، أو حاول مرة أخرى.";
   }
@@ -161,7 +168,8 @@ async function loadProfile(user){
 }
 registerForm.addEventListener("submit",async event=>{
   event.preventDefault();if(!auth||loading)return;
-  if(!validateFields(["fullName","username","regEmail","regPassword","confirmPassword"])){notice("regNotice","راجع الخانات المحددة بالأحمر وصحح البيانات قبل المتابعة.","error");return}\n  let group;try{group=selection()}catch(err){notice("regNotice",err.message,"error");return}
+  if(!validateFields(["fullName","username","regEmail","regPassword","confirmPassword"])){notice("regNotice","راجع الخانات المحددة بالأحمر وصحح البيانات قبل المتابعة.","error");return}
+  let group;try{group=selection()}catch(err){$("stageError").textContent=err.message;$("stageError").hidden=false;$("stageGrid").classList.add("has-error");notice("regNotice",err.message,"error");$("stageError").scrollIntoView({behavior:"smooth",block:"center"});return}
   const fullName=$("fullName").value.trim(),username=$("username").value.trim(),email=$("regEmail").value.trim().toLowerCase();
   const password=$("regPassword").value;
   if(fullName.length<2){notice("regNotice","اكتب اسم الطالب بشكل صحيح.","error");return}
