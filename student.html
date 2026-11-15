@@ -47,6 +47,23 @@ main,.layout,.panel{width:100%}
   .two{grid-template-columns:minmax(0,1fr)}
   .field,.password-wrap,input{max-width:100%}
 }
+
+/* In-app mobile browsers sometimes report a desktop layout viewport. */
+html.omega-mobile,html.omega-mobile body{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+html.omega-mobile main{width:100%!important;max-width:100%!important;margin:12px auto 36px!important;padding:0 12px!important}
+html.omega-mobile .layout{display:flex!important;flex-direction:column!important;gap:14px!important;width:100%!important;max-width:100%!important;grid-template-columns:none!important}
+html.omega-mobile .layout>.aside,html.omega-mobile .layout>.panel{position:static!important;flex:none!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important}
+html.omega-mobile .aside{padding:18px!important;border-radius:16px!important}
+html.omega-mobile .aside h1{font-size:24px!important;margin:10px 0!important}
+html.omega-mobile .aside p{font-size:12px!important}
+html.omega-mobile .illustration,html.omega-mobile .feature{display:none!important}
+html.omega-mobile .head-inner{width:100%!important;max-width:100%!important;min-height:0!important;padding:10px 12px!important;flex-wrap:wrap!important}
+html.omega-mobile .panel-head{padding:18px 15px 0!important}
+html.omega-mobile .panel-head h2{font-size:23px!important}
+html.omega-mobile .tabs{margin:0 15px!important}
+html.omega-mobile .body,html.omega-mobile .logged{padding:18px 15px!important}
+html.omega-mobile .two{grid-template-columns:minmax(0,1fr)!important}
+html.omega-mobile .stage-grid,html.omega-mobile .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 </style></head><body>
 <div class="topline"></div><header><div class="head-inner">
 <a href="index.html" class="brand"><span class="omega" aria-hidden="true">Ω</span><span><strong>اوميجا للغات</strong><small>OMEGA STUDENT PORTAL</small></span></a>
@@ -103,6 +120,14 @@ main,.layout,.panel{width:100%}
 </div></div>
 </main>
 <script>
+/* Detect physical mobile screens even when an embedded browser requests desktop layout. */
+(function(){
+  function syncMobile(){
+    const mobile = Math.min(screen.width||9999,screen.height||9999)<=650 || (navigator.userAgentData?.mobile===true);
+    document.documentElement.classList.toggle('omega-mobile',mobile);
+  }
+  syncMobile();window.addEventListener('resize',syncMobile);
+})();
 /* Keep login/register navigation functional even if Firebase module fails to load. */
 (function(){
   const reg=document.getElementById('regTab'),login=document.getElementById('loginTab');
