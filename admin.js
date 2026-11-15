@@ -4,8 +4,9 @@ const primary=["الصف الأول الابتدائي","الصف الثاني �
 const prep=["الصف الأول الإعدادي","الصف الثاني الإعدادي","الصف الثالث الإعدادي"];
 const typeNames={lesson:"درس",exercise:"تدريب",revision:"مراجعة",announcement:"إعلان"};
 const deptNames={english:"اللغة الإنجليزية",english_translation:"اللغة الإنجليزية والترجمة",french:"اللغة الفرنسية",other:"قسم آخر"};
+const stageNames={primary:"المرحلة الابتدائية",preparatory:"المرحلة الإعدادية",university:"المرحلة الجامعية"};
 const cfg=window.OMEGA_FIREBASE_CONFIG||{};
-let auth,db,authApi,store,unsubscribe=null,isSaving=false,items=[],adminReady=false;
+let auth,db,authApi,store,unsubscribe=null,isSaving=false,items=[],adminReady=false,editingOriginal=null;
 
 function message(id,text,kind=""){
  const el=$(id);el.textContent=text;el.className="note"+(kind?" "+kind:"");
@@ -26,9 +27,13 @@ function updateTargets(){
   if(values.includes(prev))$("targetGrade").value=prev;
  }
  $("otherBox").hidden=stage!=="university"||$("targetDepartment").value!=="other";
+ previewPlacement();
 }
 $("targetStage").addEventListener("change",updateTargets);
 $("targetDepartment").addEventListener("change",updateTargets);
+$("targetGrade").addEventListener("change",previewPlacement);
+$("targetLevel").addEventListener("change",previewPlacement);
+$("otherDepartment").addEventListener("input",previewPlacement);
 updateTargets();
 function readTarget(){
  const stage=$("targetStage").value;
@@ -53,17 +58,33 @@ function readTarget(){
  return {stage,grade,department,level,departmentOther,audienceKey};
 }
 function targetLabel(item){
- if(item.stage!=="university")return item.grade;
- return (item.department==="other"?item.departmentOther:deptNames[item.department]||item.department)+" — "+item.level;
+ if(item.stage==="primary"||item.stage==="preparatory")return stageNames[item.stage]+" • "+(item.grade||"صف غير محدد");
+ if(item.stage==="university")return "المرحلة الجامعية • "+(item.department==="other"?item.departmentOther||"قسم آخر":deptNames[item.department]||item.department)+" • "+(item.level||"مستوى غير محدد");
+ return "مجموعة غير محددة";
+}
+function previewPlacement(){
+ const label=$("targetPreviewLabel"),text=$("targetPreviewText"),help=$("targetPreviewHelp"),box=$("targetPreview");
+ let target;
+ try{target=readTarget()}catch(_){
+  box.classList.remove("changed");label.textContent="المجموعة المستهدفة";text.textContent="أكمل بيانات القسم أو المستوى لتحديد مكان المحتوى.";help.textContent="";$("saveContent").textContent=$("editingId").value?"حفظ التعديلات":"حفظ المحتوى";return;
+ }
+ const moved=!!(editingOriginal&&editingOriginal.audienceKey!==target.audienceKey);
+ box.classList.toggle("changed",moved);
+ label.textContent=moved?"سيتم نقل المحتوى إلى":editingOriginal?"مكان المحتوى الحالي":"سيظهر المحتوى لدى";
+ text.textContent=targetLabel(target);
+ help.textContent=moved?"المكان السابق: "+editingOriginal.label+" — لن يظهر المحتوى للطلاب هناك بعد الحفظ.":editingOriginal?"يمكنك تغيير المرحلة أو القسم أو المستوى، ثم حفظ التعديلات.":"سيظهر المحتوى لهذه المجموعة فقط عند نشره.";
+ if(!isSaving)$("saveContent").textContent=moved?"حفظ ونقل المحتوى":editingOriginal?"حفظ التعديلات":"حفظ المحتوى";
 }
 function resetEditor(){
- $("contentForm").reset();$("editingId").value="";$("editorHeading").textContent="إضافة محتوى جديد";
- $("saveContent").textContent="حفظ المحتوى";updateTargets();
+ $("contentForm").reset();$("editingId").value="";editingOriginal=null;$("placementTip").hidden=true;
+ $("editorHeading").textContent="إضافة محتوى جديد";updateTargets();
  message("formStatus","اختر المجموعة المستهدفة ثم احفظ المحتوى أو المسودة.");
 }
 $("cancelEdit").addEventListener("click",resetEditor);
 function setBusy(busy){
- isSaving=busy;$("saveContent").disabled=busy;$("saveContent").textContent=busy?"جاري الحفظ...":($("editingId").value?"حفظ التعديلات":"حفظ المحتوى");
+ isSaving=busy;$("saveContent").disabled=busy;
+ if(busy)$("saveContent").textContent="جاري الحفظ...";
+ else previewPlacement();
 }
 function element(tag,cls,text){
  const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;
@@ -79,19 +100,21 @@ function displayItems(){
   const desc=element("p","",item.description||"");
   const details=element("div","meta",(typeNames[item.type]||"محتوى")+" • "+targetLabel(item));
   const actions=element("div","buttons");
-  const edit=element("button","btn light","تعديل");edit.type="button";
+  const edit=element("button","btn light","تعديل التفاصيل");edit.type="button";
   edit.addEventListener("click",()=>editItem(item));
+  const move=element("button","btn move","📍 تغيير المكان");move.type="button";
+  move.addEventListener("click",()=>editItem(item,true));
   const del=element("button","btn red","حذف");del.type="button";
   del.addEventListener("click",()=>deleteItem(item));
-  actions.append(edit,del);
+  actions.append(edit,move,del);
   box.append(state,title,details,desc);
   if(item.url&&safeUrl(item.url)){const link=element("a","url-text","فتح الرابط المرفق");link.href=safeUrl(item.url);link.target="_blank";link.rel="noopener noreferrer";box.append(link)}
   box.append(actions);host.append(box);
  }
 }
-function editItem(item){
- $("editingId").value=item.id;$("contentType").value=item.type;
- $("targetStage").value=item.stage;updateTargets();
+function editItem(item,focusPlacement=false){
+ $("editingId").value=item.id;editingOriginal={audienceKey:item.audienceKey,label:targetLabel(item)};
+ $("contentType").value=item.type;$("targetStage").value=item.stage;updateTargets();
  if(item.stage==="university"){
   $("targetDepartment").value=item.department;updateTargets();
   $("otherDepartment").value=item.departmentOther||"";
@@ -99,9 +122,14 @@ function editItem(item){
  }else $("targetGrade").value=item.grade;
  $("contentTitle").value=item.title;$("contentDescription").value=item.description||"";
  $("contentUrl").value=item.url||"";$("isPublished").checked=!!item.published;
- $("editorHeading").textContent="تعديل المحتوى";$("saveContent").textContent="حفظ التعديلات";
- message("formStatus","أنت تعدّل عنصرًا موجودًا. تأكد من المجموعة المستهدفة قبل الحفظ.");
- $("editorHeading").scrollIntoView({behavior:"smooth",block:"start"});
+ $("editorHeading").textContent=focusPlacement?"تغيير مكان ظهور المحتوى":"تعديل المحتوى";
+ $("placementTip").hidden=false;
+ previewPlacement();
+ message("formStatus",focusPlacement?"غيّر المرحلة الدراسية أو القسم أو المستوى، ثم احفظ المحتوى.":"يمكنك تعديل التفاصيل أو تغيير مكان ظهور المحتوى ثم حفظ التعديلات.");
+ if(focusPlacement){
+  $("targetStage").scrollIntoView({behavior:"smooth",block:"center"});
+  $("targetStage").focus({preventScroll:true});
+ }else $("editorHeading").scrollIntoView({behavior:"smooth",block:"start"});
 }
 async function deleteItem(item){
  if(!adminReady||!confirm("حذف المحتوى «"+item.title+"» نهائيًا؟"))return;
@@ -123,6 +151,8 @@ $("contentForm").addEventListener("submit",async e=>{
  if(inputUrl&&!url){message("formStatus","الرابط يجب أن يكون HTTPS صالحًا وأقل من 1200 حرف.","error");return}
  let target;
  try{target=readTarget()}catch(err){message("formStatus",err.message,"error");return}
+ const editing=$("editingId").value;
+ const moved=!!(editing&&editingOriginal&&editingOriginal.audienceKey!==target.audienceKey);
  const data={
   type:$("contentType").value,title,description,url,published:$("isPublished").checked,
   ...target,updatedAt:store.serverTimestamp()
@@ -130,7 +160,6 @@ $("contentForm").addEventListener("submit",async e=>{
  if(!Object.hasOwn(typeNames,data.type)){message("formStatus","اختر نوع المحتوى.","error");return}
  setBusy(true);
  try{
-  const editing=$("editingId").value;
   if(editing){
    await store.updateDoc(store.doc(db,"contentItems",editing),data);
   }else{
@@ -138,7 +167,8 @@ $("contentForm").addEventListener("submit",async e=>{
     ...data,ownerId:auth.currentUser.uid,createdAt:store.serverTimestamp()
    });
   }
-  resetEditor();message("formStatus","تم حفظ المحتوى بنجاح.","good");
+  resetEditor();
+  message("formStatus",moved?"تم نقل المحتوى بنجاح إلى: "+targetLabel(target)+(data.published?" — سيظهر للطلاب في المجموعة الجديدة فقط.":" — سيظل مسودة حتى تنشره."):"تم حفظ المحتوى بنجاح.","good");
  }catch(err){
   message("formStatus",err.code==="permission-denied"?
    "تم رفض الحفظ بسبب قواعد Firestore. انشر أحدث قواعد الأمان وتأكد من تفعيل حساب المدير.":
