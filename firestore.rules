@@ -44,19 +44,7 @@ service cloud.firestore {
         && request.resource.data.fullName.size() >= 2
         && request.resource.data.fullName.size() <= 70
         && request.resource.data.username is string
-        && request.resource.data.username.matches('^01[0125][0-9]{8}
-        && request.resource.data.createdAt == request.time
-        && validPlacement(request.resource.data);
-      // Stage/department/grade cannot be changed by a student after registration.
-      // Administrative changes require a trusted backend (not public client-side JS).
-      allow update, delete: if false;
-    }
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
+        && request.resource.data.username.matches('^01[0125][0-9]{8}$')
         && request.resource.data.createdAt == request.time
         && validPlacement(request.resource.data);
       // Stage/department/grade cannot be changed by a student after registration.
