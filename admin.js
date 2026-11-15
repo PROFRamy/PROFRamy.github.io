@@ -1,5 +1,6 @@
 // OMEGA administrator console. The Firestore rules, not this interface, enforce privileges.
 import { bindRichToolbar, setEditorContent, editorResult } from "./omega-rich.js?v=20261115-rich1";
+import { MEDIA_LIMIT, MEDIA_TYPES, checkMediaList, mediaUrl, renderMedia } from "./omega-media.js?v=20261115-media1";
 const $=id=>document.getElementById(id);
 const primary=["الصف الأول الابتدائي","الصف الثاني الابتدائي","الصف الثالث الابتدائي","الصف الرابع الابتدائي","الصف الخامس الابتدائي","الصف السادس الابتدائي"];
 const prep=["الصف الأول الإعدادي","الصف الثاني الإعدادي","الصف الثالث الإعدادي"];
@@ -12,6 +13,77 @@ function inferSubject(item){
  const first=String(item.title||"").split(/\s+[-–—]\s+|[:：]/)[0].trim();
  return knownSubjects.test(first)?first:"مواد غير مصنفة";
 }
+
+/* External media attachments are metadata only: no file bytes, tokens or secret keys. */
+function mediaCount(){
+ const count=$("mediaRows").children.length;
+ $("mediaCount").textContent=count+" / "+MEDIA_LIMIT+" مرفقات";
+ $("addMedia").disabled=count>=MEDIA_LIMIT;
+ $("mediaPreview").hidden=true;
+ $("mediaAlert").textContent="";
+}
+function addMediaRow(item={}){
+ if($("mediaRows").children.length>=MEDIA_LIMIT)return;
+ const box=document.createElement("div");box.className="omega-media-row";
+ const typeLabel=document.createElement("label");typeLabel.textContent="نوع المرفق";
+ const type=document.createElement("select");type.className="omega-media-type";
+ for(const [value,meta] of Object.entries(MEDIA_TYPES)){
+  const option=new Option(meta.icon+" "+meta.name,value);type.add(option);
+ }
+ type.value=Object.hasOwn(MEDIA_TYPES,item.type)?item.type:"image";
+ typeLabel.append(type);
+ const titleLabel=document.createElement("label");titleLabel.textContent="اسم المرفق";
+ const title=document.createElement("input");title.className="omega-media-titlefield";
+ title.type="text";title.maxLength=100;title.value=item.title||"";
+ title.placeholder="مثال: شرح المحاضرة الأولى";titleLabel.append(title);
+ const urlLabel=document.createElement("label");urlLabel.className="omega-media-linkfield";
+ urlLabel.textContent="رابط الملف HTTPS";
+ const url=document.createElement("input");url.className="omega-media-urlfield";
+ url.type="url";url.maxLength=1200;url.value=item.url||"";url.dir="ltr";
+ url.placeholder="https://example.com/lesson.pdf";urlLabel.append(url);
+ const actions=document.createElement("div");actions.className="omega-media-actions";
+ const up=document.createElement("button");up.type="button";up.textContent="↑ لأعلى";up.setAttribute("aria-label","تحريك المرفق لأعلى");
+ const down=document.createElement("button");down.type="button";down.textContent="↓ لأسفل";down.setAttribute("aria-label","تحريك المرفق لأسفل");
+ const remove=document.createElement("button");remove.type="button";remove.textContent="حذف";remove.setAttribute("aria-label","حذف المرفق");
+ for(const b of [up,down]){b.style.color="#16803c";b.style.borderColor="#b7dcca";b.style.background="#eef9f0"}
+ up.addEventListener("click",()=>{const before=box.previousElementSibling;if(before){box.parentNode.insertBefore(box,before);mediaCount()}});
+ down.addEventListener("click",()=>{const next=box.nextElementSibling;if(next){box.parentNode.insertBefore(next,box);mediaCount()}});
+ remove.addEventListener("click",()=>{box.remove();mediaCount()});
+ actions.append(up,down,remove);
+ box.append(typeLabel,titleLabel,urlLabel,actions);
+ $("mediaRows").append(box);
+ mediaCount();
+}
+function loadMediaRows(items){
+ $("mediaRows").replaceChildren();
+ const safe=checkMediaList(items);
+ for(const item of safe||[])addMediaRow(item);
+ mediaCount();
+}
+function collectMedia(){
+ const entries=[];
+ for(const [index,row] of [...$("mediaRows").children].entries()){
+  const type=row.querySelector(".omega-media-type").value;
+  const title=row.querySelector(".omega-media-titlefield").value.trim();
+  const url=row.querySelector(".omega-media-urlfield").value.trim();
+  if(!title&&!url)continue;
+  const approved=mediaUrl(url);
+  if(!title||title.length>100||!approved)throw Error("المرفق "+(index+1)+": اكتب اسمًا واضحًا ورابط HTTPS مباشرًا وصحيحًا.");
+  entries.push({type,title,url:approved});
+ }
+ const safe=checkMediaList(entries);
+ if(!safe)throw Error("المرفقات غير صالحة أو تجاوزت 12 مرفقًا.");
+ return safe;
+}
+$("addMedia").addEventListener("click",()=>addMediaRow());
+$("mediaPreviewButton").addEventListener("click",()=>{
+ try{
+  const entries=collectMedia();
+  if(!entries.length){$("mediaAlert").textContent="أضف مرفقًا واحدًا على الأقل لمعاينته.";return}
+  renderMedia($("mediaPreview"),entries);
+ }catch(err){$("mediaAlert").textContent=err.message}
+});
+
 function updateSubjectVisibility(){
  const needsSubject=$("contentType").value!=="announcement";
  $("subjectBox").hidden=!needsSubject;
@@ -91,7 +163,7 @@ function previewPlacement(){
 }
 function resetEditor(){
  $("contentForm").reset();$("editingId").value="";editingOriginal=null;$("placementTip").hidden=true;updateSubjectVisibility();
- setEditorContent($("richEditor"),"","");richControls.clear();
+ setEditorContent($("richEditor"),"","");richControls.clear();loadMediaRows([]);
  $("editorHeading").textContent="إضافة محتوى جديد";updateTargets();
  message("formStatus","اختر المجموعة المستهدفة ثم احفظ المحتوى أو المسودة.");
 }
@@ -140,7 +212,7 @@ function editItem(item,focusPlacement=false){
  }else $("targetGrade").value=item.grade;
  $("contentTitle").value=item.title;
  setEditorContent($("richEditor"),item.richHtml||"",item.description||"");
- richControls.clear();
+ richControls.clear();loadMediaRows(item.media||[]);
  $("contentUrl").value=item.url||"";$("isPublished").checked=!!item.published;
  $("editorHeading").textContent=focusPlacement?"تغيير مكان ظهور المحتوى":"تعديل المحتوى";
  $("placementTip").hidden=false;
@@ -172,17 +244,19 @@ $("contentForm").addEventListener("submit",async e=>{
  if(!rich.valid||rich.textLength>40000){
   message("formStatus","المحتوى طويل جدًا بالنسبة إلى درس واحد (الحد 40 ألف حرف، وحجم التنسيق 60 ألف حرف). قسّم الشرح إلى محاضرتين.","error");return;
  }
+ let media;
+ try{media=collectMedia()}catch(err){$("mediaAlert").textContent=err.message;message("formStatus",err.message,"error");return}
  const inputUrl=$("contentUrl").value.trim();
  const url=safeUrl(inputUrl);
  if(title.length<3||title.length>140){message("formStatus","اكتب عنوانًا من 3 إلى 140 حرفًا.","error");return}
- if(!rich.text&&!inputUrl){message("formStatus","اكتب نص الدرس أو أضف رابطًا صحيحًا.","error");return}
+ if(!rich.text&&!inputUrl&&!media.length){message("formStatus","اكتب نص الدرس أو أضف مرفقًا أو رابطًا صحيحًا.","error");return}
  if(inputUrl&&!url){message("formStatus","الرابط يجب أن يكون HTTPS صالحًا وأقل من 1200 حرف.","error");return}
  let target;
  try{target=readTarget()}catch(err){message("formStatus",err.message,"error");return}
  const editing=$("editingId").value;
  const moved=!!(editing&&editingOriginal&&editingOriginal.audienceKey!==target.audienceKey);
  const data={
-  type,subject,title,description,richHtml,url,published:$("isPublished").checked,
+  type,subject,title,description,richHtml,media,url,published:$("isPublished").checked,
   ...target,updatedAt:store.serverTimestamp()
  };
  if(!Object.hasOwn(typeNames,data.type)){message("formStatus","اختر نوع المحتوى.","error");return}
@@ -199,7 +273,7 @@ $("contentForm").addEventListener("submit",async e=>{
   message("formStatus",moved?"تم نقل المحتوى بنجاح إلى: "+targetLabel(target)+(data.published?" — سيظهر للطلاب في المجموعة الجديدة فقط.":" — سيظل مسودة حتى تنشره."):"تم حفظ المحتوى بنجاح.","good");
  }catch(err){
   message("formStatus",err.code==="permission-denied"?
-   "تم رفض الحفظ بسبب قواعد Firestore. انشر أحدث ملف firestore.rules الذي يسمح بحقل richHtml، وتأكد من صلاحيات المدير.":
+   "تم رفض الحفظ بسبب قواعد Firestore. انشر أحدث ملف firestore.rules الذي يسمح بالمرفقات (media)، وتأكد من صلاحيات المدير.":
    "تعذر حفظ المحتوى. تحقق من الاتصال والحقول ثم حاول مجددًا.","error");
  }finally{setBusy(false)}
 });
