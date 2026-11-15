@@ -16,6 +16,7 @@ label{display:block;font-size:12px;font-weight:800;color:var(--navy);margin:0 0 
 @media(max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}}@media(max-width:520px){main{margin:15px auto;padding:0 12px 45px}.card{padding:17px;border-radius:15px}.headings h1{font-size:23px}.cols{grid-template-columns:minmax(0,1fr)}.head{padding:10px 12px}.btn{padding:10px 12px}.identity{font-size:15px}}
 </style>
 <link rel="stylesheet" href="omega-rich.css?v=20261115-rich1">
+<link rel="stylesheet" href="omega-media.css?v=20261115-media1">
 </head>
 <body><div class="topbar"></div><header><div class="head"><div class="identity">اوميجا للغات <small>OMEGA • Content Management</small></div><a class="back" href="student.html">العودة لبوابة الطلاب ←</a></div></header>
 <main>
@@ -80,6 +81,18 @@ label{display:block;font-size:12px;font-weight:800;color:var(--navy);margin:0 0 
 <p class="hint" style="margin:7px 0 0">اختَر النص أولًا ثم استخدم أزرار التنسيق. يدعم العربية والإنجليزية والفرنسية، وحفظ الألوان والعناوين والقوائم.</p>
 </div>
 <div class="field"><label for="contentUrl">رابط مرجع عام (اختياري)</label><input id="contentUrl" type="url" maxlength="1200" placeholder="https://..." dir="ltr"><p class="hint">الروابط الخارجية العامة ليست ملفات خاصة؛ لا تضع عليها محتوى سريًا.</p></div>
+<section class="omega-media-manager" aria-labelledby="mediaTitle">
+<h3 id="mediaTitle">📎 مرفقات الدرس: صور، تسجيلات، PDF</h3>
+<p class="omega-media-note">أضف روابط HTTPS مباشرة لصور أو ملفات صوتية أو PDF منشورة على استضافة خارجية. <strong>هذه الروابط عامة، ولا تُحمى بقواعد حسابات الطلاب.</strong> الرفع المباشر من جهازك للتخزين الخاص ليس مفعّلًا بعد.</p>
+<div class="omega-media-rows" id="mediaRows"></div>
+<div class="buttons" style="align-items:center">
+<button type="button" class="omega-media-add" id="addMedia">+ إضافة مرفق جديد</button>
+<button type="button" class="btn light" id="mediaPreviewButton">معاينة المرفقات</button>
+<span class="omega-media-count" id="mediaCount">0 / 12 مرفقات</span>
+</div>
+<div class="omega-media-alert" id="mediaAlert" role="status" aria-live="polite"></div>
+<div class="omega-media-container" id="mediaPreview" hidden></div>
+</section>
 <label class="check"><input id="isPublished" type="checkbox" checked> نشر المحتوى للطلاب فورًا</label>
 <div class="buttons"><button class="btn green" id="saveContent" type="submit">حفظ المحتوى</button><button class="btn light" id="cancelEdit" type="button">مسح الحقول</button></div>
 <div class="note" id="formStatus" role="status" aria-live="polite">اختر المجموعة المستهدفة؛ لن يظهر المحتوى إلا للطلاب المسجلين فيها بعد نشر قواعد الأمان.</div>
@@ -90,5 +103,5 @@ label{display:block;font-size:12px;font-weight:800;color:var(--navy);margin:0 0 
 </section>
 </main>
 <script src="firebase-config.js"></script>
-<script type="module" src="admin.js?v=20261115-rich1"></script>
+<script type="module" src="admin.js?v=20261115-media1"></script>
 </body></html>
