@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#162c48">
+<meta name="description" content="سنتر اوميجا للغات في طنطا، الغربية. تعليم الإنجليزية للمرحلتين الابتدائية والإعدادية، ودعم دراسة اللغة الإنجليزية والفرنسية.">
+<meta property="og:title" content="اوميجا للغات | OMEGA Languages">
+<meta property="og:description" content="تعلم بثقة، وطور لغتك خطوة بخطوة مع اوميجا.">
+<title>اوميجا للغات | OMEGA Languages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#162c48;--red:#c62828;--green:#16803c;--ink:#171717;--muted:#5e6b7b;--border:#e2e9ee;--sky:#ecf6ff;--bg:#f7fafd}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;color:var(--ink);background:#fff;font-family:Cairo,system-ui,sans-serif;line-height:1.85}a{text-decoration:none;color:inherit}button{font:inherit} .wrap{width:min(1120px,calc(100% - 36px));margin:auto}
+.top{height:5px;background:linear-gradient(90deg,var(--green) 0 34%,var(--red) 34% 66%,var(--navy) 66%)}header{position:sticky;z-index:10;top:0;background:#ffffffef;backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}.navbar{display:flex;align-items:center;justify-content:space-between;min-height:80px;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;line-height:1.35}.logo{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:var(--navy);color:#fff;font:900 36px Outfit,sans-serif;position:relative}.logo:after{content:"";width:10px;height:10px;position:absolute;top:4px;left:4px;background:var(--red);border:2px solid white;border-radius:50%}.brand strong{display:block;color:var(--navy);font-weight:900;font-size:19px}.brand small{font:700 10px Outfit,sans-serif;letter-spacing:2px;color:var(--red);direction:ltr;display:block}
+nav{display:flex;align-items:center;gap:26px}nav a{font-size:13px;font-weight:800;color:#41576e}nav a:hover{color:var(--red)}.smallbtn{padding:9px 16px;border-radius:11px;background:var(--navy);color:#fff!important}.menu{display:none;cursor:pointer;border:1px solid var(--border);background:white;border-radius:12px;padding:6px 13px;color:var(--navy);font-size:24px}
+.hero{background:radial-gradient(circle at 85% 20%,#e4f3ff 0,transparent 36%),linear-gradient(145deg,#fff,#f3f9ff);padding:85px 0 95px;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:48px}.eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 15px;border-radius:30px;background:#ebf8ef;color:var(--green);border:1px solid #d7eedd;font-size:12px;font-weight:800}.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green)}h1{font-size:clamp(36px,5vw,62px);color:var(--navy);font-weight:900;line-height:1.4;letter-spacing:-1px;margin:20px 0}h1 em{font-style:normal;color:var(--red)}h1 b{color:var(--green)}.lead{font-size:16px;color:#4b6174;line-height:2.1;max-width:570px}.buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 23px;min-height:49px;font-size:13px;font-weight:900;border-radius:12px;transition:transform .2s}.btn:hover{transform:translateY(-3px)}.primary{background:var(--red);color:white;box-shadow:0 12px 28px #c6282826}.secondary{background:white;border:1px solid #dbe7ee;color:var(--navy)}.checks{margin-top:28px;display:flex;gap:18px;flex-wrap:wrap;font-size:11px;font-weight:800;color:#4d6172}.checks span:before{content:"✓";display:inline-grid;place-items:center;margin-left:7px;width:20px;height:20px;border-radius:50%;background:#def3e5;color:var(--green)}
+.illustration{min-height:415px;position:relative;display:grid;place-items:center}.halo{position:absolute;inset:7% 3%;background:linear-gradient(130deg,#d9efff,#e7f5ec);border-radius:47% 53% 57% 43% / 50% 45% 55% 50%;transform:rotate(-10deg)}.visual{z-index:1;width:min(390px,92%);background:white;border:1px solid #deebf5;border-radius:26px;padding:22px;box-shadow:0 30px 70px #264e7320;transform:rotate(-2deg)}.visual-heading{display:flex;align-items:center;justify-content:space-between;font:900 12px Outfit,sans-serif;letter-spacing:2px;color:#67839e}.dots{width:38px;height:7px;background:linear-gradient(90deg,var(--red) 50%,var(--green) 50%);border-radius:20px}.visual svg{display:block;width:100%;height:auto}.visual-bottom{display:flex;justify-content:space-between;color:var(--navy);font-size:13px;font-weight:900}.visual-bottom small{font:800 10px Outfit,sans-serif;color:var(--green)}.bubble{position:absolute;z-index:2;background:white;border:1px solid #e2eaf1;border-radius:17px;box-shadow:0 10px 25px #24496920;padding:13px 19px;font:800 23px Outfit,sans-serif}.bubble.en{top:10%;right:0;color:var(--red);transform:rotate(10deg)}.bubble.fr{bottom:9%;left:0;color:var(--green);transform:rotate(-9deg)}.bubble.ar{top:13%;left:0;color:var(--navy);font:900 17px Cairo,sans-serif}
+.strip{background:var(--navy);color:white;padding:21px 0}.strip .wrap{display:flex;justify-content:center;gap:35px;flex-wrap:wrap;font-weight:800;font-size:13px}.strip b{color:#93d9ab}
+section{padding:86px 0}.tag{color:var(--red);font-size:12px;font-weight:900;display:block;margin-bottom:8px}h2{font-size:clamp(27px,3.4vw,40px);line-height:1.5;margin:0 0 13px;color:var(--navy);font-weight:900}.intro{max-width:720px;color:var(--muted);font-size:14px;margin:0 0 35px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.service{border:1px solid var(--border);border-radius:21px;padding:29px;background:white;box-shadow:0 10px 32px #183d5f08;transition:transform .2s}.service:hover{transform:translateY(-5px)}.service:nth-child(1){border-top:4px solid var(--red)}.service:nth-child(2){border-top:4px solid var(--green)}.service:nth-child(3){border-top:4px solid var(--navy)}.symbol{width:61px;height:61px;display:grid;place-items:center;border-radius:17px;font-size:28px;margin-bottom:23px;background:#fff0f0}.service:nth-child(2) .symbol{background:#eaf7ef}.service:nth-child(3) .symbol{background:#eaf2f9}.service h3{color:var(--navy);font-size:19px;font-weight:900;margin:0 0 12px}.service p{font-size:13px;line-height:2.05;color:var(--muted);margin:0}.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:22px}.pills span{font-size:11px;font-weight:700;background:#f1f6f9;border:1px solid #e5ecf1;padding:5px 10px;border-radius:7px;color:#506579}
+.about{background:var(--bg);border-top:1px solid #edf2f6;border-bottom:1px solid #edf2f6}.about-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:65px;align-items:center}.about-graphic{min-height:345px;display:flex;align-items:center;justify-content:center}.quote-card{width:100%;border-radius:28px;background:var(--navy);padding:42px 35px;color:white;box-shadow:0 25px 60px #142b4820}.quote-card .en{font:900 clamp(32px,4vw,49px)/1.23 Outfit,sans-serif;direction:ltr;text-align:left;margin-bottom:45px}.quote-card .en span{color:#9bebb2}.quote-card .sub{border-top:1px solid #60768d;padding-top:19px;font-weight:800}.about-copy p{font-size:14px;color:var(--muted);line-height:2.15}.signature{display:inline-flex;align-items:center;gap:12px;background:white;border:1px solid #dfe8ef;padding:11px 17px;border-radius:12px;font-size:13px;font-weight:900;color:var(--navy)}.signature:before{content:"★";color:var(--red)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.step{padding:29px 26px;border:1px solid var(--border);border-radius:20px}.step strong{font:900 42px Outfit,sans-serif;color:#ccdce7}.step h3{color:var(--navy);margin:10px 0;font-size:19px}.step p{font-size:13px;color:var(--muted);margin:0;line-height:2.1}
+.contact-area{padding-top:20px;padding-bottom:85px}.contact-box{padding:48px 55px;border-radius:29px;background:linear-gradient(115deg,#162c48,#1f4967);color:white;display:flex;gap:35px;justify-content:space-between;align-items:center;overflow:hidden;position:relative}.contact-box:before{content:"";position:absolute;left:-85px;top:-115px;width:310px;height:310px;border:54px solid #ffffff0b;border-radius:50%}.contact-box>*{position:relative}.contact-box h2{color:white}.contact-box p{font-size:13px;color:#d6e5ef;margin:0 0 20px}.contact-info{display:flex;gap:12px 23px;flex-wrap:wrap;font-size:13px;font-weight:800}.contact-info a:hover{text-decoration:underline}.contact-info span{color:#b5e2c5}.contact-buttons{display:flex;flex-wrap:wrap;gap:10px;min-width:235px}.contact-buttons .btn{width:100%;background:white;color:var(--navy)}.contact-buttons .btn.alt{background:var(--green);color:white}
+footer{border-top:1px solid var(--border);padding:27px 0;background:white}.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;font-size:11px;font-weight:800;color:#698092}.footer-inner strong{color:var(--navy)}
+@media(max-width:950px){.hero-grid,.about-grid{grid-template-columns:1fr}.hero{padding:58px 0 62px}.illustration{min-height:395px;max-width:500px;margin:auto;width:100%}.about-grid{gap:24px}.about-graphic{min-height:250px}.grid{grid-template-columns:repeat(2,1fr)}.contact-box{flex-direction:column;align-items:stretch}.contact-buttons{min-width:0;flex-direction:row}.contact-buttons .btn{width:auto}}
+@media(max-width:690px){.navbar{min-height:70px}.brand strong{font-size:17px}nav{display:none;position:absolute;top:70px;right:0;left:0;background:#fff;padding:22px 24px;box-shadow:0 15px 25px #162c481b;flex-direction:column;align-items:stretch;gap:15px}nav.open{display:flex}.menu{display:block}.hero h1{font-size:36px}.hero{padding:52px 0}.illustration{min-height:330px}.visual{width:min(320px,87%)}.bubble{font-size:17px;padding:8px 13px}.bubble.ar{font-size:14px}.strip .wrap{gap:12px;font-size:11px;justify-content:space-evenly}section{padding:65px 0}.grid,.steps{grid-template-columns:1fr}.service{padding:25px}.quote-card{padding:32px}.contact-area{padding:10px 0 65px}.contact-box{padding:34px 25px;border-radius:22px}.contact-buttons{flex-direction:column}.contact-buttons .btn{width:100%}.footer-inner{justify-content:center;text-align:center}.lead{font-size:14px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="top"></div>
+<header><div class="wrap navbar">
+<a href="#home" class="brand" aria-label="اوميجا للغات - الصفحة الرئيسية"><span class="logo" aria-hidden="true">Ω</span><span><strong>اوميجا للغات</strong><small>OMEGA LANGUAGES</small></span></a>
+<button class="menu" id="menu" aria-expanded="false" aria-controls="navigation" aria-label="فتح القائمة">☰</button>
+<nav id="navigation" aria-label="القائمة الرئيسية">
+<a href="#home">الرئيسية</a><a href="#programs">البرامج التعليمية</a><a href="#about">من نحن</a><a href="#method">أسلوبنا</a><a href="#contact" class="smallbtn">تواصل معنا</a>
+</nav></div></header>
+<main>
+<section class="hero" id="home"><div class="wrap hero-grid">
+<div><span class="eyebrow">مرحبًا بك في سنتر اوميجا للغات</span><h1>طريقك لفهم اللغة<br><em>يبدأ من هنا</em> <b>✓</b></h1><p class="lead">في اوميجا، نساعدك تتعلم اللغة الإنجليزية والفرنسية بطريقة منظمة وواضحة؛ من تأسيس المهارات إلى الفهم والتطبيق والمراجعة، بخطوات تناسب مستواك.</p>
+<div class="buttons"><a class="btn primary" href="#programs">استكشف برامجنا ←</a><a class="btn secondary" href="#contact">تواصل معنا</a></div>
+<div class="checks"><span>شرح مبسط</span><span>تدريبات عملية</span><span>متابعة وتطوير</span></div></div>
+<div class="illustration" aria-label="رسم تعليمي لكتب مفتوحة وتعليم اللغات" role="img"><div class="halo"></div><div class="bubble en" aria-hidden="true">EN</div><div class="bubble fr" aria-hidden="true">FR</div><div class="bubble ar" aria-hidden="true">عربي</div>
+<div class="visual"><div class="visual-heading"><span>LEARN • GROW • SUCCEED</span><span class="dots"></span></div>
+<svg viewBox="0 0 420 290" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<rect x="40" y="48" width="340" height="210" rx="29" fill="#eef8ff"/>
+<circle cx="332" cy="83" r="26" fill="#e3f4e7"/><circle cx="84" cy="98" r="22" fill="#ffe5e4"/>
+<path d="M78 198c49-35 90-32 132-9 42-23 84-26 132 9v45c-48-34-90-32-132-8-42-24-83-26-132 8z" fill="#fff" stroke="#142c49" stroke-width="5" stroke-linejoin="round"/>
+<path d="M210 189v47" stroke="#142c49" stroke-width="5" stroke-linecap="round"/>
+<path d="M91 215c41-20 75-18 105-3M223 212c34-16 69-17 106 3" fill="none" stroke="#bdd4e4" stroke-width="4" stroke-linecap="round"/>
+<path d="M104 203c43-23 79-20 106 1V128c-38-26-73-29-106-10z" fill="#fff" stroke="#142c49" stroke-width="5" stroke-linejoin="round"/>
+<path d="M316 203c-43-23-79-20-106 1V128c38-26 73-29 106-10z" fill="#fff" stroke="#142c49" stroke-width="5" stroke-linejoin="round"/>
+<path d="M118 139c26-13 52-10 77 3M118 158c26-13 52-10 77 3M225 142c25-13 51-16 76-3M225 161c25-13 51-16 76-3" stroke="#d1e0e9" stroke-width="4" fill="none" stroke-linecap="round"/>
+<path d="M210 62v39M195 81h30" stroke="#c62828" stroke-width="9" stroke-linecap="round"/>
+<path d="M160 76l11-16 11 16M171 60v38" stroke="#16803c" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M263 80h27M263 94h27" stroke="#162c48" stroke-width="6" stroke-linecap="round"/>
+<path d="M322 163l16-21M337 165l-16-21" stroke="#c62828" stroke-width="5" stroke-linecap="round"/>
+<circle cx="85" cy="156" r="7" fill="#16803c"/><circle cx="337" cy="115" r="5" fill="#c62828"/>
+</svg>
+<div class="visual-bottom"><strong>كل خطوة بتفرق!</strong><small>OMEGA CENTER</small></div></div></div>
+</div></section>
+<div class="strip"><div class="wrap"><span><b>✓</b> لغة إنجليزية</span><span><b>✓</b> لغة فرنسية</span><span><b>✓</b> مراجعات وتدريبات</span><span><b>✓</b> طنطا – الغربية</span></div></div>
+<section id="programs"><div class="wrap"><span class="tag">ماذا نقدم؟</span><h2>برامج تعليمية تناسب أهدافك</h2><p class="intro">التركيز مش بس على حفظ المعلومة، لكن على فهمها واستخدامها بشكل صحيح.</p>
+<div class="grid">
+<article class="service"><div class="symbol" aria-hidden="true">📘</div><h3>المرحلة الابتدائية</h3><p>تأسيس وتقوية اللغة الإنجليزية بالمفردات والقواعد والقراءة والتدريبات المبسطة التي تناسب مستوى الطالب.</p><div class="pills"><span>English</span><span>Vocabulary</span><span>Grammar</span></div></article>
+<article class="service"><div class="symbol" aria-hidden="true">🎯</div><h3>المرحلة الإعدادية</h3><p>شرح قواعد اللغة الإنجليزية وتطوير المهارات والتدريب على الأسئلة والمراجعات بصورة متدرجة ومنظمة.</p><div class="pills"><span>Practice</span><span>Reading</span><span>Revision</span></div></article>
+<article class="service"><div class="symbol" aria-hidden="true">🎓</div><h3>الدراسة الجامعية</h3><p>محتوى تعليمي وشروحات ومراجعات في موضوعات اللغة الإنجليزية والفرنسية لطلاب كلية الآداب.</p><div class="pills"><span>English</span><span>Français</span><span>Academic</span></div></article>
+</div></div></section>
+<section class="about" id="about"><div class="wrap about-grid">
+<div class="about-graphic"><div class="quote-card"><div class="en">Learn with<br><span>confidence.</span><br>Grow with<br>OMEGA.</div><div class="sub">اوميجا للغات | تعليم بخطوات واضحة</div></div></div>
+<div class="about-copy"><span class="tag">من نحن</span><h2>تعليم يهتم بالفهم قبل الحفظ</h2><p>سنتر اوميجا للغات مساحة تعليمية تهدف لتقديم شرح مبسط ومنظم يساعد الطالب على بناء أساس قوي، وتنمية مهارات اللغة من خلال التطبيق والتدريب المستمر.</p><p>نهتم بتقديم المواد التعليمية بشكل مرتب ومريح للعين، مع أمثلة واضحة ومراجعات تساعد الطالب على الاستعداد للدروس والاختبارات بثقة.</p><div class="signature">البروف رامي الشيخ — اللغة الإنجليزية</div></div>
+</div></section>
+<section id="method"><div class="wrap"><span class="tag">كيف نتعلم؟</span><h2>خطوات بسيطة، ونتيجة أفضل</h2><p class="intro">من البداية وحتى المراجعة، بنركز على رحلة تعلم مفهومة للطالب.</p><div class="steps">
+<div class="step"><strong>01</strong><h3>نفهم</h3><p>شرح الفكرة بأمثلة سهلة وبلغة تناسب المرحلة الدراسية.</p></div>
+<div class="step"><strong>02</strong><h3>نطبّق</h3><p>تدريبات عملية وأسئلة تساعد على تثبيت المعلومة.</p></div>
+<div class="step"><strong>03</strong><h3>نراجع</h3><p>تنظيم النقاط المهمة والرجوع إليها قبل الاختبارات.</p></div>
+</div></div></section>
+<section class="contact-area" id="contact"><div class="wrap"><div class="contact-box"><div><span class="tag" style="color:#a0e9b3">ابدأ رحلتك معنا</span><h2>مستعد تطور مستواك؟</h2><p>للاستفسار عن البرامج التعليمية والمواعيد، تواصل معنا مباشرة.</p><div class="contact-info"><div>📍 <span>العنوان:</span> طنطا – الغربية، مصر</div><div>📞 <span>الهاتف:</span> <a href="tel:+201101000430" dir="ltr">01101000430</a></div></div></div><div class="contact-buttons"><a href="tel:+201101000430" class="btn">📞 اتصل الآن</a><a href="https://t.me/PROF_Ramy_ElSheikh" target="_blank" rel="noopener noreferrer" class="btn alt">✈️ جروب التليجرام</a></div></div></div></section>
+</main>
+<footer><div class="wrap footer-inner"><strong>Ω اوميجا للغات | OMEGA Languages</strong><span>طنطا، الغربية • © <span id="year">2026</span> جميع الحقوق محفوظة</span></div></footer>
+<script>
+const menu=document.getElementById("menu"),navigation=document.getElementById("navigation");
+menu.addEventListener("click",()=>{const open=navigation.classList.toggle("open");menu.setAttribute("aria-expanded",String(open));menu.textContent=open?"×":"☰"});
+navigation.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{navigation.classList.remove("open");menu.setAttribute("aria-expanded","false");menu.textContent="☰"}));
+document.getElementById("year").textContent=new Date().getFullYear();
+</script>
+</body></html>
