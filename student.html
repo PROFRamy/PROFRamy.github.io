@@ -152,6 +152,38 @@ html.omega-mobile .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!
 .student-empty{padding:19px 13px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:12px;text-align:center}
 .student-navigator button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
 @media(max-width:600px){.student-navigator{padding:12px;border-radius:13px}.student-navhead h3{font-size:17px}.student-subject{padding:12px}.student-subject-name,.student-lesson-title{font-size:12px}.student-detail{padding:12px}.student-detail h4{font-size:18px}.student-detail-body{font-size:13px}}
+
+/* Focused full-width reading mode applies ONLY to an opened lesson/detail. */
+body.omega-reading main{width:100%;max-width:1480px;margin:24px auto 65px;padding:0 clamp(12px,3vw,42px)}
+body.omega-reading .layout{display:block!important;grid-template-columns:minmax(0,1fr)!important;gap:0;width:100%;max-width:100%}
+body.omega-reading .layout>.aside{display:none!important}
+body.omega-reading .layout>.panel{width:100%!important;max-width:none!important;min-width:0;overflow:visible;background:#fff;box-shadow:0 10px 40px #1435570a}
+body.omega-reading .logged{padding:clamp(18px,3vw,35px) clamp(16px,4vw,60px) 52px!important}
+body.omega-reading .student-navigator{width:100%;max-width:none;border:0;padding:0;margin:0;background:transparent;overflow:visible}
+body.omega-reading .student-breadcrumb{margin:0 0 18px;font-size:12px}
+body.omega-reading .student-navhead{padding:0 0 16px;border-bottom:1px solid var(--line);margin:0 0 24px}
+body.omega-reading .student-navhead h3{font-size:19px}
+body.omega-reading .student-navlist{display:block;width:100%;min-width:0}
+body.omega-reading .student-detail{padding:0;border:0;border-radius:0;background:#fff;width:100%;max-width:none}
+body.omega-reading .student-detail h4{font-size:clamp(23px,2.6vw,34px);color:var(--navy);line-height:1.65;border-bottom:1px solid var(--line);padding:0 0 18px;margin:0 0 24px;overflow-wrap:anywhere}
+body.omega-reading .student-detail-body{font-size:clamp(16px,1.35vw,18px);line-height:2.2;color:#273c51;max-width:none;width:100%;overflow-wrap:anywhere}
+body.omega-reading .student-detail-body p{margin:0 0 21px}
+body.omega-reading .student-detail-body h2,body.omega-reading .student-detail-body h3{font-size:clamp(18px,1.8vw,22px);margin:25px 0 13px}
+body.omega-reading .student-resource{font-size:13px}
+body.omega-reading #logout{display:none}
+@media(max-width:600px){
+ body.omega-reading main{margin:10px auto 32px;padding:0 10px}
+ body.omega-reading .panel{border-radius:15px}
+ body.omega-reading .logged{padding:16px 13px 32px!important}
+ body.omega-reading .student-detail h4{font-size:23px;margin-bottom:18px}
+ body.omega-reading .student-detail-body{font-size:16px;line-height:2.1}
+ body.omega-reading .student-navhead h3{font-size:16px}
+}
+html.omega-mobile body.omega-reading main{width:100%!important;max-width:100%!important;margin:9px auto 28px!important;padding:0 10px!important}
+html.omega-mobile body.omega-reading .layout{display:block!important;grid-template-columns:none!important}
+html.omega-mobile body.omega-reading .aside{display:none!important}
+html.omega-mobile body.omega-reading .layout>.panel{width:100%!important;max-width:100%!important}
+html.omega-mobile body.omega-reading .logged{padding:17px 13px 32px!important}
 </style></head><body>
 <div class="topline"></div><header><div class="head-inner">
 <a href="index.html" class="brand"><span class="omega" aria-hidden="true">Ω</span><span><strong>اوميجا للغات</strong><small>OMEGA STUDENT PORTAL</small></span></a>
@@ -247,5 +279,5 @@ html.omega-mobile .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!
   if(new URLSearchParams(location.search).get('view')==='login')selectTab('login');
 })();
 </script>
-<script src="firebase-config.js"></script><script type="module" src="student-auth.js?v=20261115-inpage3"></script>
+<script src="firebase-config.js"></script><script type="module" src="student-auth.js?v=20261115-reading1"></script>
 </body></html>
