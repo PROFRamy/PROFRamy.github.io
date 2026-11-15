@@ -70,11 +70,13 @@ service cloud.firestore {
         && d.keys().hasOnly([
           'ownerId', 'type', 'title', 'description', 'url', 'published',
           'stage', 'grade', 'department', 'level', 'departmentOther', 'audienceKey',
-          'createdAt', 'updatedAt'
+          'subject', 'createdAt', 'updatedAt'
         ])
         && d.ownerId is string && d.ownerId.size() > 0
         && d.type in ['lesson', 'exercise', 'revision', 'announcement']
         && d.title is string && d.title.size() >= 3 && d.title.size() <= 140
+        && d.get('subject', '') is string
+        && d.get('subject', '').size() <= 70
         && d.description is string && d.description.size() <= 6000
         && d.url is string && d.url.size() <= 1200
         && (d.url == '' || d.url.matches('^https://.+$'))
