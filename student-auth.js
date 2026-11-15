@@ -66,6 +66,48 @@ document.querySelectorAll(".toggle-pass").forEach(btn=>btn.addEventListener("cli
 function notice(id,message,style){
   const node=$(id);node.textContent=message;node.className="notice"+(style?" "+style:"");
 }
+// Accessible field-level validation: show the exact issue next to its input.
+const fieldMessages={
+ fullName:"اكتب اسم الطالب (حرفين على الأقل).",
+ username:"اسم المستخدم لازم يكون من 3 إلى 30 حرف إنجليزي أو رقم أو شرطة سفلية (_).",
+ regEmail:"اكتب بريدًا إلكترونيًا صحيحًا، مثل student@gmail.com.",
+ regPassword:"كلمة المرور لازم تكون 8 أحرف على الأقل.",
+ confirmPassword:"تأكيد كلمة المرور غير مطابق. اكتب نفس كلمة المرور.",
+ loginEmail:"اكتب بريدك الإلكتروني بصورة صحيحة.",
+ loginPassword:"اكتب كلمة المرور الخاصة بحساب اوميجا."
+};
+function fieldError(id,message){
+ const input=$(id),node=$(id+"Error");
+ if(!input||!node)return;
+ input.setAttribute("aria-invalid",message?"true":"false");
+ node.textContent=message||"";
+ node.hidden=!message;
+}
+function checkField(id){
+ const input=$(id);if(!input)return true;
+ let error="";
+ if(id==="fullName"&&input.value.trim().length<2)error=fieldMessages[id];
+ if(id==="username"&&!/^[A-Za-z0-9_]{3,30}$/.test(input.value.trim()))error=fieldMessages[id];
+ if((id==="regEmail"||id==="loginEmail")&&(!input.value.trim()||!input.checkValidity()))error=fieldMessages[id];
+ if(id==="regPassword"&&input.value.length<8)error=fieldMessages[id];
+ if(id==="confirmPassword"&&input.value!==$("regPassword").value)error=fieldMessages[id];
+ if(id==="loginPassword"&&!input.value)error=fieldMessages[id];
+ fieldError(id,error);return !error;
+}
+Object.keys(fieldMessages).forEach(id=>{
+ const input=$(id);if(!input)return;
+ input.addEventListener("blur",()=>checkField(id));
+ input.addEventListener("input",()=>{
+  if(input.getAttribute("aria-invalid")==="true")checkField(id);
+  if(id==="regPassword"&&$("confirmPassword").value)checkField("confirmPassword");
+ });
+});
+function validateFields(ids){
+ let valid=true,first=null;
+ for(const id of ids){if(!checkField(id)){valid=false;first??=$(id)}}
+ if(first){first.focus();first.scrollIntoView({behavior:"smooth",block:"center"})}
+ return valid;
+}
 function setBusy(value){
   loading=value;
   const connected=!!auth;
@@ -99,11 +141,11 @@ function dashboard(profile){
 function explain(error){
   switch(error?.code){
     case "auth/email-already-in-use":return "البريد الإلكتروني مسجل بالفعل. استخدم تسجيل الدخول أو استعادة كلمة المرور.";
-    case "auth/invalid-email":return "البريد الإلكتروني غير صحيح.";
-    case "auth/weak-password":return "كلمة المرور ضعيفة. اختار كلمة مرور أقوى.";
+    case "auth/invalid-email":return "البريد الإلكتروني غير صحيح. راجع كتابة البريد وعلامة @ واسم النطاق.";
+    case "auth/weak-password":return "كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل، ويفضل الجمع بين حروف وأرقام ورموز.";
     case "auth/invalid-credential":case "auth/wrong-password":case "auth/user-not-found":return "بيانات الدخول غير صحيحة.";
     case "auth/too-many-requests":return "محاولات كثيرة. حاول مرة أخرى لاحقًا.";
-    case "auth/network-request-failed":return "تعذر الاتصال بالإنترنت. راجع الاتصال.";
+    case "auth/network-request-failed":return "تعذر الاتصال بالإنترنت. تأكد من اتصالك ثم أعد المحاولة.";\n    case "auth/operation-not-allowed":return "طريقة تسجيل الدخول غير مفعلة حاليًا. تواصل مع إدارة اوميجا.";\n    case "auth/unauthorized-domain":return "الموقع غير مصرح له بتسجيل الدخول. تواصل مع الإدارة.";\n    case "auth/popup-blocked":return "المتصفح منع نافذة تسجيل الدخول. اسمح بالنوافذ المنبثقة وحاول مجددًا.";\n    case "auth/popup-closed-by-user":return "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية. حاول مرة أخرى.";\n    case "auth/account-exists-with-different-credential":return "هذا البريد مرتبط بطريقة دخول مختلفة. جرّب الطريقة التي سجلت بها أول مرة.";
     case "permission-denied":return "تعذر حفظ بيانات الطالب. تأكد من إعداد قواعد Firestore أو تواصل مع الإدارة.";
     default:return "تعذر إكمال العملية. راجع إعدادات الخدمة، أو حاول مرة أخرى.";
   }
@@ -119,7 +161,7 @@ async function loadProfile(user){
 }
 registerForm.addEventListener("submit",async event=>{
   event.preventDefault();if(!auth||loading)return;
-  let group;try{group=selection()}catch(err){notice("regNotice",err.message,"error");return}
+  if(!validateFields(["fullName","username","regEmail","regPassword","confirmPassword"])){notice("regNotice","راجع الخانات المحددة بالأحمر وصحح البيانات قبل المتابعة.","error");return}\n  let group;try{group=selection()}catch(err){notice("regNotice",err.message,"error");return}
   const fullName=$("fullName").value.trim(),username=$("username").value.trim(),email=$("regEmail").value.trim().toLowerCase();
   const password=$("regPassword").value;
   if(fullName.length<2){notice("regNotice","اكتب اسم الطالب بشكل صحيح.","error");return}
@@ -132,8 +174,8 @@ registerForm.addEventListener("submit",async event=>{
     const profile={uid:student.uid,fullName,username,email,...group,createdAt:firestoreLib.serverTimestamp()};
     await firestoreLib.setDoc(firestoreLib.doc(db,"students",student.uid),profile);
     try{await authLib.updateProfile(student,{displayName:fullName})}catch(_){}
-    notice("regNotice","تم إنشاء الحساب بنجاح.","good");registerForm.reset();dashboard(profile);
-  }catch(err){notice("regNotice",explain(err),"error")}
+    notice("regNotice","تم إنشاء الحساب بنجاح.","good");registerForm.reset();Object.keys(fieldMessages).forEach(id=>fieldError(id,""));dashboard(profile);
+  }catch(err){if(err?.code==="auth/email-already-in-use"||err?.code==="auth/invalid-email")fieldError("regEmail",explain(err));if(err?.code==="auth/weak-password")fieldError("regPassword",explain(err));notice("regNotice",explain(err),"error")}
   finally{registering=false;setBusy(false)}
 });
 loginForm.addEventListener("submit",async event=>{
