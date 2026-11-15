@@ -29,6 +29,10 @@ function copyStyle(element,source){
    }else if(prop==="font-size"){
     const n=Number(raw.replace(/px$/,""));
     if(/^\d+(?:\.\d+)?px$/.test(raw)&&n>=10&&n<=40)element.style.fontSize=n+"px";
+    else if({"xx-small":true,"x-small":true,"small":true,"medium":true,"large":true,"x-large":true,"xx-large":true,"xxx-large":true}[raw]){
+     const named={"xx-small":"11px","x-small":"13px","small":"13px","medium":"16px","large":"18px","x-large":"24px","xx-large":"30px","xxx-large":"36px"};
+     element.style.fontSize=named[raw];
+    }
    }else if(prop==="font-weight"&&(/^(bold|bolder)$/.test(raw)||/^[6-9]00$/.test(raw)))element.style.fontWeight="bold";
    else if(prop==="font-style"&&raw==="italic")element.style.fontStyle="italic";
    else if(prop==="text-decoration"&&raw.includes("underline"))element.style.textDecoration="underline";
@@ -128,7 +132,7 @@ export function bindRichToolbar(editor,toolbar,counter,preview,previewButton){
   const result=editorResult(editor);
   counter.textContent=result.textLength.toLocaleString("en-US")+" حرفًا • حجم التنسيق "+result.htmlLength.toLocaleString("en-US")+" / "+MAX_HTML.toLocaleString("en-US");
   counter.style.color=result.valid?"":"#c62828";
-  if(!preview.hidden)renderRich(preview,result.html);
+  if(!preview.hidden)renderRich(preview.querySelector(".omega-rich-content")||preview,result.html);
  }
  function command(action,value){
   restoreRange();
