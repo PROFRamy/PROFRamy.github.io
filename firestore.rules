@@ -70,7 +70,7 @@ service cloud.firestore {
         && d.keys().hasOnly([
           'ownerId', 'type', 'title', 'description', 'url', 'published',
           'stage', 'grade', 'department', 'level', 'departmentOther', 'audienceKey',
-          'subject', 'createdAt', 'updatedAt'
+          'subject', 'richHtml', 'createdAt', 'updatedAt'
         ])
         && d.ownerId is string && d.ownerId.size() > 0
         && d.type in ['lesson', 'exercise', 'revision', 'announcement']
@@ -78,9 +78,11 @@ service cloud.firestore {
         && d.get('subject', '') is string
         && d.get('subject', '').size() <= 70
         && d.description is string && d.description.size() <= 6000
+        && d.get('richHtml', '') is string
+        && d.get('richHtml', '').size() <= 60000
         && d.url is string && d.url.size() <= 1200
         && (d.url == '' || d.url.matches('^https://.+$'))
-        && (d.description.size() > 0 || d.url.size() > 0)
+        && (d.description.size() > 0 || d.url.size() > 0 || d.get('richHtml', '').size() > 0)
         && d.published is bool
         && validPlacement(d)
         && d.audienceKey is string
