@@ -117,7 +117,7 @@ html.omega-mobile .dashboard-grid{grid-template-columns:minmax(0,1fr)!important}
 .dashboard-grid .dash-item:focus-visible,.subject-card:focus-visible,.browser-back:focus-visible{outline:3px solid var(--green);outline-offset:3px}
 .dash-main{display:flex;align-items:center;gap:13px;min-width:0}
 .dash-main i{font-size:29px;font-style:normal;line-height:1}
-.dash-main h3{font-size:17px;margin:0 0 3px;color:var(--navy)}
+.dash-main .dash-title{display:block;font-size:17px;margin:0 0 3px;color:var(--navy)}
 .dash-main small{font-size:11px;color:var(--muted)}
 .dash-count{display:grid;place-items:center;min-width:43px;height:43px;border-radius:13px;background:#eaf7ee;color:var(--green);font-size:18px;font-weight:900;flex-shrink:0;font-variant-numeric:tabular-nums}
 .content-browser{margin-top:19px;border:1px solid var(--line);border-radius:17px;background:#fff;padding:18px;min-width:0}
@@ -141,7 +141,7 @@ html.omega-mobile .dashboard-grid{grid-template-columns:minmax(0,1fr)!important}
 .lesson-body .feed-description{font-size:13px;line-height:2;white-space:pre-wrap;overflow-wrap:anywhere;color:#40546a;margin:0}
 .lesson-body .feed-link{display:inline-block;margin-top:12px;color:var(--green);font-size:12px;font-weight:800;overflow-wrap:anywhere}
 .browser-empty{color:var(--muted);font-size:12px;padding:15px;border:1px dashed var(--line);border-radius:12px}
-@media(max-width:600px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid .dash-item{padding:13px 11px;min-height:91px;gap:7px}.dash-main{gap:7px}.dash-main i{font-size:23px}.dash-main h3{font-size:13px}.dash-main small{font-size:9px}.dash-count{min-width:31px;height:33px;border-radius:9px;font-size:14px}.content-browser{padding:12px}.subject-card{padding:12px 10px}.subject-name{font-size:12px}}
+@media(max-width:600px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid .dash-item{padding:13px 11px;min-height:91px;gap:7px}.dash-main{gap:7px}.dash-main i{font-size:23px}.dash-main .dash-title{font-size:13px}.dash-main small{font-size:9px}.dash-count{min-width:31px;height:33px;border-radius:9px;font-size:14px}.content-browser{padding:12px}.subject-card{padding:12px 10px}.subject-name{font-size:12px}}
 html.omega-mobile .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 </style></head><body>
 <div class="topline"></div><header><div class="head-inner">
@@ -195,10 +195,10 @@ html.omega-mobile .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!
 <section class="logged" id="dashboard" hidden><div class="welcome"><span class="section-kicker">لوحة الطالب</span><h2 id="welcomeName">أهلًا بك!</h2><p>مساحتك الدراسية الخاصة في اوميجا.</p><div class="profile-row" id="profileTags"></div></div>
 <div id="feedStatus" class="notice" role="status" aria-live="polite">جاري تحميل محتوى مرحلتك الدراسية…</div>
 <div class="dashboard-grid" id="dashboardGrid">
-<button class="dash-item" type="button" data-feed-type="lesson"><span class="dash-main"><i aria-hidden="true">📖</i><span><h3>الدروس</h3><small>تصفح المواد والدروس</small></span></span><span class="dash-count" id="lessonCount" aria-label="عدد الدروس">0</span></button>
-<button class="dash-item" type="button" data-feed-type="exercise"><span class="dash-main"><i aria-hidden="true">📝</i><span><h3>التدريبات</h3><small>تدريبات حسب المادة</small></span></span><span class="dash-count" id="exerciseCount" aria-label="عدد التدريبات">0</span></button>
-<button class="dash-item" type="button" data-feed-type="revision"><span class="dash-main"><i aria-hidden="true">📚</i><span><h3>المراجعات</h3><small>مراجعات حسب المادة</small></span></span><span class="dash-count" id="revisionCount" aria-label="عدد المراجعات">0</span></button>
-<button class="dash-item" type="button" data-feed-type="announcement"><span class="dash-main"><i aria-hidden="true">📣</i><span><h3>الإعلانات</h3><small>آخر الإعلانات</small></span></span><span class="dash-count" id="announcementCount" aria-label="عدد الإعلانات">0</span></button>
+<button class="dash-item" type="button" data-feed-type="lesson"><span class="dash-main"><i aria-hidden="true">📖</i><span><strong class="dash-title">الدروس</strong><small>تصفح المواد والدروس</small></span></span><span class="dash-count" id="lessonCount" aria-label="عدد الدروس">0</span></button>
+<button class="dash-item" type="button" data-feed-type="exercise"><span class="dash-main"><i aria-hidden="true">📝</i><span><strong class="dash-title">التدريبات</strong><small>تدريبات حسب المادة</small></span></span><span class="dash-count" id="exerciseCount" aria-label="عدد التدريبات">0</span></button>
+<button class="dash-item" type="button" data-feed-type="revision"><span class="dash-main"><i aria-hidden="true">📚</i><span><strong class="dash-title">المراجعات</strong><small>مراجعات حسب المادة</small></span></span><span class="dash-count" id="revisionCount" aria-label="عدد المراجعات">0</span></button>
+<button class="dash-item" type="button" data-feed-type="announcement"><span class="dash-main"><i aria-hidden="true">📣</i><span><strong class="dash-title">الإعلانات</strong><small>آخر الإعلانات</small></span></span><span class="dash-count" id="announcementCount" aria-label="عدد الإعلانات">0</span></button>
 </div>
 <section class="content-browser" id="contentBrowser" hidden aria-label="تصفح المحتوى الدراسي">
 <div class="browser-toolbar"><div><span class="browser-crumb" id="browserCrumb"></span><h3 id="browserTitle"></h3></div><button class="browser-back" id="browserBack" type="button">رجوع</button></div>
