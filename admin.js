@@ -1,6 +1,6 @@
 // OMEGA administrator console. The Firestore rules, not this interface, enforce privileges.
 import { bindRichToolbar, setEditorContent, editorResult } from "./omega-rich.js?v=20261115-rich1";
-import { MEDIA_LIMIT, MEDIA_TYPES, checkMediaList, mediaUrl, renderMedia, audioSourcePlan } from "./omega-media.js?v=20261115-audio2";
+import { MEDIA_LIMIT, MEDIA_TYPES, checkMediaList, mediaUrl, renderMedia, audioSourcePlan } from "./omega-media.js?v=20261115-telegram1";
 const $=id=>document.getElementById(id);
 const primary=["الصف الأول الابتدائي","الصف الثاني الابتدائي","الصف الثالث الابتدائي","الصف الرابع الابتدائي","الصف الخامس الابتدائي","الصف السادس الابتدائي"];
 const prep=["الصف الأول الإعدادي","الصف الثاني الإعدادي","الصف الثالث الإعدادي"];
