@@ -1,6 +1,6 @@
 // OMEGA Student Portal. Firebase Auth manages passwords; Firestore stores only profile metadata.
 import { renderRich } from "./omega-rich.js?v=20261115-rich1";
-import { renderMedia } from "./omega-media.js?v=20261115-media1";
+import { renderMedia } from "./omega-media.js?v=20261115-audio2";
 const $ = id => document.getElementById(id);
 const registerForm = $("registerForm");
 const loginForm = $("loginForm");
