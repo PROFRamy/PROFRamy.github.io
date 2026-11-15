@@ -166,7 +166,7 @@ let activeType=null,activeSubject=null;
 function cohortKey(profile){
  if(profile.stage==="primary"||profile.stage==="preparatory")return profile.stage+"|"+profile.grade;
  if(profile.stage==="university"){
-  const other=profile.department==="other"?(String(profile.departmentOther||"").trim().replace(/\\s+/g," ")+"|"):"";
+  const other=profile.department==="other"?(String(profile.departmentOther||"").trim().replace(/\s+/g," ")+"|"):"";
   return "university|"+profile.department+"|"+other+profile.level;
  }
  return "";
@@ -178,10 +178,10 @@ function node(tag,cls,text){
  const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;
 }
 function subjectOf(item){
- const named=String(item.subject||"").trim().replace(/\\s+/g," ");
+ const named=String(item.subject||"").trim().replace(/\s+/g," ");
  if(named)return named;
  // Existing lessons have no subject field; recognize only familiar title prefixes.
- const first=String(item.title||"").split(/\\s+[-–—]\\s+|[:：]/)[0].trim();
+ const first=String(item.title||"").split(/\s+[-–—]\s+|[:：]/)[0].trim();
  const known=/^(قصة|القصة|قواعد|القواعد|صوتيات|الصوتيات|ترجمة|الترجمة|الأدب|أدب|دراما|شعر|رواية|نصوص|نحو|قراءة|علم اللغة|علم اللغة النصي|لسانيات|تكنولوجيا المعلومات|اللغة العربية|اللغة الإنجليزية|اللغة الفرنسية|فرنسية الصحافة|قصة قصيرة|الترجمة من الإنجليزية إلى العربية|Grammar|Story|Phonetics|Linguistics|Literature|Drama|Poetry|Translation|ICT)$/i;
  return known.test(first)?first:"مواد غير مصنفة";
 }
