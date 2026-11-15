@@ -42,6 +42,7 @@ label{display:block;font-size:12px;font-weight:800;color:var(--navy);margin:0 0 
 </div>
 <div class="note placement-tip" id="placementTip" hidden>📍 لتغيير مكان الدرس، اختر المرحلة الدراسية الجديدة ثم الصف أو القسم والمستوى. سيتم الاحتفاظ بنفس الدرس ومحتواه.</div>
 <div class="target-preview" id="targetPreview" role="status" aria-live="polite"><span id="targetPreviewLabel">المجموعة المستهدفة</span><strong id="targetPreviewText"></strong><small id="targetPreviewHelp"></small></div>
+<div class="field" id="subjectBox"><label for="contentSubject">📁 اسم المادة الدراسية</label><input id="contentSubject" type="text" list="subjectSuggestions" maxlength="70" placeholder="مثال: قصة، قواعد، صوتيات، ترجمة"><datalist id="subjectSuggestions"><option value="قصة"></option><option value="قواعد"></option><option value="صوتيات"></option><option value="ترجمة"></option><option value="اللغة الإنجليزية"></option><option value="اللغة الفرنسية"></option><option value="تكنولوجيا المعلومات"></option></datalist><p class="hint">سيجمع الموقع كل الدروس التي تحمل اسم المادة نفسه داخل مجلد واحد للطلاب.</p></div>
 <div class="field"><label for="contentTitle">عنوان المحتوى</label><input id="contentTitle" type="text" maxlength="140" required placeholder="مثال: مراجعة الوحدة الأولى"></div>
 <div class="field"><label for="contentDescription">نص الدرس أو التفاصيل</label><textarea id="contentDescription" maxlength="6000" placeholder="اكتب الشرح أو التعليمات هنا..."></textarea></div>
 <div class="field"><label for="contentUrl">رابط مرجع عام (اختياري)</label><input id="contentUrl" type="url" maxlength="1200" placeholder="https://..." dir="ltr"><p class="hint">الروابط الخارجية العامة ليست ملفات خاصة؛ لا تضع عليها محتوى سريًا.</p></div>
@@ -55,5 +56,5 @@ label{display:block;font-size:12px;font-weight:800;color:var(--navy);margin:0 0 
 </section>
 </main>
 <script src="firebase-config.js"></script>
-<script type="module" src="admin.js?v=20261115-move1"></script>
+<script type="module" src="admin.js?v=20261115-subject1"></script>
 </body></html>
