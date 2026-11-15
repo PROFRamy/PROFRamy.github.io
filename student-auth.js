@@ -12,9 +12,10 @@ const preparatory = ["الصف الأول الإعدادي","الصف الثان
 const departments = [
  {value:"english",label:"اللغة الإنجليزية"},
  {value:"english_translation",label:"اللغة الإنجليزية والترجمة"},
- {value:"french",label:"اللغة الفرنسية"}
+ {value:"french",label:"اللغة الفرنسية"},
+ {value:"other",label:"قسم آخر"}
 ];
-const levels=["المستوى الأول","المستوى الثاني","المستوى الثالث"];
+const levels=["المستوى الأول","المستوى الثاني","المستوى الثالث","المستوى الرابع","خريج جامعي"];
 let auth=null,db=null,authLib=null,firestoreLib=null,registering=false,loading=false;
 const show = (id,visible)=>$(id).classList.toggle("hidden",!visible);
 function createOptions(containerId,group,items){
@@ -42,13 +43,19 @@ function setStage(){
   show("prepChoices",stage==="preparatory");
   show("uniChoices",stage==="university");
   show("uniLevelsBox",stage==="university"&&!!selectValue("uniDepartment"));
+  show("departmentOtherBox",stage==="university"&&selectValue("uniDepartment")==="other");
   const groups={primaryGrade:"primary",prepGrade:"preparatory",uniDepartment:"university",uniLevel:"university"};
   for(const [group,value] of Object.entries(groups)){
     if(value!==stage)document.querySelectorAll('input[name="'+group+'"]').forEach(input=>input.checked=false);
   }
 }
 stages.forEach(radio=>radio.addEventListener("change",setStage));
-$("departments").addEventListener("change",()=>show("uniLevelsBox",!!selectValue("uniDepartment")));
+$("departments").addEventListener("change",()=>{
+  const department=selectValue("uniDepartment");
+  show("uniLevelsBox",!!department);
+  show("departmentOtherBox",department==="other");
+  if(department!=="other"){ $("departmentOther").value="";fieldError("departmentOther",""); }
+});
 function switchTab(type){
   const registration=type==="register";
   show("registerForm",registration);show("loginForm",!registration);
@@ -76,7 +83,8 @@ const fieldMessages={
  regPassword:"كلمة المرور لازم تكون 8 أحرف على الأقل.",
  confirmPassword:"تأكيد كلمة المرور غير مطابق. اكتب نفس كلمة المرور.",
  loginEmail:"اكتب بريدك الإلكتروني بصورة صحيحة.",
- loginPassword:"اكتب كلمة المرور الخاصة بحساب اوميجا."
+ loginPassword:"اكتب كلمة المرور الخاصة بحساب اوميجا.",
+ departmentOther:"اكتب اسم القسم الآخر من حرفين إلى 70 حرفًا."
 };
 function fieldError(id,message){
  const input=$(id),node=$(id+"Error");
@@ -94,6 +102,7 @@ function checkField(id){
  if(id==="regPassword"&&input.value.length<8)error=fieldMessages[id];
  if(id==="confirmPassword"&&input.value!==$("regPassword").value)error=fieldMessages[id];
  if(id==="loginPassword"&&!input.value)error=fieldMessages[id];
+ if(id==="departmentOther"&&selectValue("stage")==="university"&&selectValue("uniDepartment")==="other"&&(input.value.trim().length<2||input.value.trim().length>70))error=fieldMessages[id];
  fieldError(id,error);return !error;
 }
 Object.keys(fieldMessages).forEach(id=>{
@@ -123,10 +132,15 @@ function selection(){
   const stage=selectValue("stage"),grade=stage==="primary"?selectValue("primaryGrade"):stage==="preparatory"?selectValue("prepGrade"):"";
   const department=stage==="university"?selectValue("uniDepartment"):"";
   const level=stage==="university"?selectValue("uniLevel"):"";
+  const departmentOther=stage==="university"&&department==="other"?$("departmentOther").value.trim():"";
   if(!stage||stage==="secondary")throw Error("⚠️ اختار المرحلة الدراسية أولًا: ابتدائي أو إعدادي أو جامعي.");
   if((stage==="primary"||stage==="preparatory")&&!grade)throw Error("⚠️ اختار الصف الدراسي من الخيارات الظاهرة.");
   if(stage==="university"&&(!department||!level))throw Error("⚠️ اختار القسم الجامعي والمستوى الدراسي.");
-  return {stage,grade,department,level};
+  if(stage==="university"&&department==="other"&&!checkField("departmentOther")){
+    $("departmentOther").focus();
+    throw Error("⚠️ اكتب اسم القسم الآخر في الخانة المخصصة.");
+  }
+  return {stage,grade,department,level,departmentOther};
 }
 function showAuthentication(){
   $("authViews").hidden=false;
@@ -135,7 +149,7 @@ function showAuthentication(){
 function dashboard(profile){
   $("welcomeName").textContent="أهلًا يا "+(profile.fullName||"طالب اوميجا")+" 👋";
   const tags=$("profileTags");tags.replaceChildren();
-  const labels=[stageNames[profile.stage]||"",profile.grade||"",profile.department?departments.find(x=>x.value===profile.department)?.label||"":"",profile.level||""].filter(Boolean);
+  const labels=[stageNames[profile.stage]||"",profile.grade||"",profile.department?(profile.department==="other"?(profile.departmentOther||"قسم آخر"):departments.find(x=>x.value===profile.department)?.label||""):"",profile.level||""].filter(Boolean);
   if(profile.stage==="university")labels.splice(1,0,"كلية الآداب – جامعة طنطا");
   for(const value of labels){const span=document.createElement("span");span.textContent=value;tags.appendChild(span)}
   $("authViews").hidden=true;$("dashboard").hidden=false;
