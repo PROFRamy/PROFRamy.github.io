@@ -67,16 +67,16 @@ function subjectName(item){
  return familiarSubjects.test(prefix)?prefix:"مواد غير مصنفة";
 }
 function linkCard(icon,name,count,href,aria){
- const a=make("a","link-card");a.href=href;a.target="_blank";a.rel="noopener noreferrer";a.setAttribute("aria-label",aria);
+ const a=make("a","link-card");a.href=href;a.setAttribute("aria-label",aria);
  const head=make("span","entry-head"),badge=make("span","entry-icon",icon);
  const nameEl=make("span","entry-name",name),side=make("span","entry-count",count);
  head.append(badge,nameEl);a.append(head,side);
  return a;
 }
 function lessonLink(item,index,subject){
- const a=make("a","lesson-card");a.target="_blank";a.rel="noopener noreferrer";
+ const a=make("a","lesson-card");
  a.href=urlFor(subject,item.id);
- a.setAttribute("aria-label","فتح "+item.title+" في تبويب جديد");
+ a.setAttribute("aria-label","الانتقال إلى "+item.title);
  a.append(make("span","lesson-index",String(index+1)),make("span","lesson-name",item.title||"محتوى جديد"),make("span","lesson-link-icon","↗"));
  return a;
 }
@@ -115,6 +115,9 @@ function render(records){
  const visible=records.filter(item=>item.type===kind);
  const area=$("contentArea");area.replaceChildren();
  const bread=$("breadcrumbs");bread.replaceChildren();
+ const back=$("pageBack");
+ back.href=selectedId?(kind==="announcement"?urlFor():urlFor(selectedSubject)):(selectedSubject?urlFor():"student.html");
+ back.textContent=selectedId?"← الرجوع إلى عناوين "+kinds[kind].title:(selectedSubject?"← الرجوع إلى المواد":"← الرجوع إلى أقسام الطالب");
  addNavLink(bread,"حساب الطالب","student.html");crumb(" / ");
  if(!selectedSubject&&!selectedId&&kind!=="announcement"){
   crumb(kinds[kind].title);
@@ -127,7 +130,7 @@ function render(records){
   page("المواد الدراسية — "+kinds[kind].title,"اختر المادة الدراسية لعرض عناوين "+kinds[kind].title+" الموجودة داخلها.",String(visible.length)+" "+kinds[kind].title);
   if(!groups.size){area.append(make("p","empty","لا يوجد محتوى منشور في هذا القسم حتى الآن."));return}
   const grid=make("div","grid");
-  for(const [name,items] of groups)grid.append(linkCard("📁",name,String(items.length)+" "+(kind==="lesson"?"درس":"عناصر"),urlFor(name),"فتح مادة "+name+" في تبويب جديد"));
+  for(const [name,items] of groups)grid.append(linkCard("📁",name,String(items.length)+" "+(kind==="lesson"?"درس":"عناصر"),urlFor(name),"الانتقال إلى مادة "+name));
   area.append(grid);return;
  }
  // Announcements do not need a subject selection: open titles directly.
@@ -162,7 +165,7 @@ function render(records){
  const href=resourceUrl(item.url);
  if(href){
   const link=make("a","resource-link","فتح المرجع أو الملف المرفق ↗");
-  link.href=href;link.target="_blank";link.rel="noopener noreferrer";article.append(link);
+  link.href=href;article.append(link);
  }
  area.append(article);
 }
