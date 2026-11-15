@@ -16,7 +16,7 @@ const departments = [
  {value:"other",label:"قسم آخر"}
 ];
 const levels=["المستوى الأول","المستوى الثاني","المستوى الثالث","المستوى الرابع","خريج جامعي"];
-let auth=null,db=null,authLib=null,firestoreLib=null,registering=false,loading=false;
+let auth=null,db=null,authLib=null,firestoreLib=null,registering=false,loading=false,feedUnsubscribe=null;
 const show = (id,visible)=>$(id).classList.toggle("hidden",!visible);
 function createOptions(containerId,group,items){
   const container=$(containerId);
@@ -147,7 +147,7 @@ function selection(){
   const stage=selectValue("stage"),grade=stage==="primary"?selectValue("primaryGrade"):stage==="preparatory"?selectValue("prepGrade"):"";
   const department=stage==="university"?selectValue("uniDepartment"):"";
   const level=stage==="university"?selectValue("uniLevel"):"";
-  const departmentOther=stage==="university"&&department==="other"?$("departmentOther").value.trim():"";
+  const departmentOther=stage==="university"&&department==="other"?$("departmentOther").value.trim().replace(/\s+/g," "):"";
   if(!stage||stage==="secondary")throw Error("⚠️ اختار المرحلة الدراسية أولًا: ابتدائي أو إعدادي أو جامعي.");
   if((stage==="primary"||stage==="preparatory")&&!grade)throw Error("⚠️ اختار الصف الدراسي من الخيارات الظاهرة.");
   if(stage==="university"&&(!department||!level))throw Error("⚠️ اختار القسم الجامعي والمستوى الدراسي.");
@@ -157,7 +157,71 @@ function selection(){
   }
   return {stage,grade,department,level,departmentOther};
 }
+
+/* Cohort-specific feed: access is checked again on the Firestore server. */
+const feedIds={lesson:"lessonItems",exercise:"exerciseItems",revision:"revisionItems",announcement:"announcementItems"};
+const emptyFeed={lesson:"لم تُنشر دروس بعد.",exercise:"لم تُنشر تدريبات بعد.",revision:"لم تُنشر مراجعات بعد.",announcement:"لم تُنشر إعلانات بعد."};
+function cohortKey(profile){
+ if(profile.stage==="primary"||profile.stage==="preparatory")return profile.stage+"|"+profile.grade;
+ if(profile.stage==="university"){
+  const other=profile.department==="other"?(String(profile.departmentOther||"").trim().replace(/\s+/g," ")+"|"):"";
+  return "university|"+profile.department+"|"+other+profile.level;
+ }
+ return "";
+}
+function safeResourceUrl(value){
+ try{const url=new URL(value);return url.protocol==="https:"&&url.username===""&&url.password===""?url.href:""}catch(_){return ""}
+}
+function renderFeed(documents){
+ const grouped={lesson:[],exercise:[],revision:[],announcement:[]};
+ for(const item of documents){if(grouped[item.type])grouped[item.type].push(item)}
+ for(const [type,id] of Object.entries(feedIds)){
+  const host=$(id);host.replaceChildren();
+  if(!grouped[type].length){
+   const empty=document.createElement("p");empty.className="feed-empty";empty.textContent=emptyFeed[type];host.append(empty);continue;
+  }
+  for(const item of grouped[type]){
+   const section=document.createElement("article");section.className="feed-entry";
+   const title=document.createElement("h4");title.textContent=item.title||"محتوى جديد";
+   const description=document.createElement("p");description.className="feed-description";description.textContent=item.description||"";
+   section.append(title,description);
+   const link=safeResourceUrl(item.url);
+   if(link){const a=document.createElement("a");a.className="feed-link";a.href=link;a.target="_blank";a.rel="noopener noreferrer";a.textContent="فتح المرجع المرفق";section.append(a)}
+   host.append(section);
+  }
+ }
+}
+function stopFeed(){
+ if(feedUnsubscribe){feedUnsubscribe();feedUnsubscribe=null}
+}
+function startFeed(profile){
+ stopFeed();renderFeed([]);
+ if(!db||!firestoreLib){$("feedStatus").textContent="تعذر الاتصال بقاعدة المحتوى.";return}
+ const key=cohortKey(profile);
+ if(!key){$("feedStatus").textContent="تعذر تحديد المجموعة الدراسية لهذا الحساب.";return}
+ $("feedStatus").className="notice";$("feedStatus").textContent="جاري تحميل محتوى صفك أو قسمك الدراسي…";
+ const query=firestoreLib.query(
+  firestoreLib.collection(db,"contentItems"),
+  firestoreLib.where("audienceKey","==",key),
+  firestoreLib.where("published","==",true)
+ );
+ feedUnsubscribe=firestoreLib.onSnapshot(query,snapshot=>{
+  const records=snapshot.docs.map(d=>d.data());
+  records.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  renderFeed(records);
+  $("feedStatus").className="notice good";
+  $("feedStatus").textContent=records.length?
+   ("المحتوى الخاص بمجموعتك متاح — "+records.length+" عنصر."):"لا يوجد محتوى منشور لمجموعتك حتى الآن.";
+ },err=>{
+  $("feedStatus").className="notice error";
+  $("feedStatus").textContent=err.code==="permission-denied"?
+   "تعذر عرض المحتوى. يرجى التأكد من تحديث قواعد Firestore.":
+   "تعذر تحميل المحتوى حاليًا. حاول مجددًا بعد التحقق من الاتصال.";
+ });
+}
+
 function showAuthentication(){
+  stopFeed();
   $("authViews").hidden=false;
   $("dashboard").hidden=true;
 }
@@ -168,6 +232,7 @@ function dashboard(profile){
   if(profile.stage==="university")labels.splice(1,0,"كلية الآداب – جامعة طنطا");
   for(const value of labels){const span=document.createElement("span");span.textContent=value;tags.appendChild(span)}
   $("authViews").hidden=true;$("dashboard").hidden=false;
+  startFeed(profile);
 }
 function explain(error){
   switch(error?.code){
