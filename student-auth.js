@@ -158,13 +158,15 @@ function selection(){
   return {stage,grade,department,level,departmentOther};
 }
 
-/* Cohort-specific feed: access is checked again on the Firestore server. */
-const feedIds={lesson:"lessonItems",exercise:"exerciseItems",revision:"revisionItems",announcement:"announcementItems"};
+/* Cohort-specific feed: Firestore restricts every document to the student's group. */
+const feedLabels={lesson:"الدروس",exercise:"التدريبات",revision:"المراجعات",announcement:"الإعلانات"};
 const emptyFeed={lesson:"لم تُنشر دروس بعد.",exercise:"لم تُنشر تدريبات بعد.",revision:"لم تُنشر مراجعات بعد.",announcement:"لم تُنشر إعلانات بعد."};
+const feedEntries={lesson:[],exercise:[],revision:[],announcement:[]};
+let activeType=null,activeSubject=null;
 function cohortKey(profile){
  if(profile.stage==="primary"||profile.stage==="preparatory")return profile.stage+"|"+profile.grade;
  if(profile.stage==="university"){
-  const other=profile.department==="other"?(String(profile.departmentOther||"").trim().replace(/\s+/g," ")+"|"):"";
+  const other=profile.department==="other"?(String(profile.departmentOther||"").trim().replace(/\\s+/g," ")+"|"):"";
   return "university|"+profile.department+"|"+other+profile.level;
  }
  return "";
@@ -172,24 +174,70 @@ function cohortKey(profile){
 function safeResourceUrl(value){
  try{const url=new URL(value);return url.protocol==="https:"&&url.username===""&&url.password===""?url.href:""}catch(_){return ""}
 }
-function renderFeed(documents){
- const grouped={lesson:[],exercise:[],revision:[],announcement:[]};
- for(const item of documents){if(grouped[item.type])grouped[item.type].push(item)}
- for(const [type,id] of Object.entries(feedIds)){
-  const host=$(id);host.replaceChildren();
-  if(!grouped[type].length){
-   const empty=document.createElement("p");empty.className="feed-empty";empty.textContent=emptyFeed[type];host.append(empty);continue;
+function node(tag,cls,text){
+ const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;
+}
+function subjectOf(item){
+ const named=String(item.subject||"").trim().replace(/\\s+/g," ");
+ if(named)return named;
+ // Existing lessons have no subject field; recognize only familiar title prefixes.
+ const first=String(item.title||"").split(/\\s+[-–—]\\s+|[:：]/)[0].trim();
+ const known=/^(قصة|القصة|قواعد|القواعد|صوتيات|الصوتيات|ترجمة|الترجمة|الأدب|أدب|دراما|شعر|رواية|نصوص|نحو|قراءة|علم اللغة|علم اللغة النصي|لسانيات|تكنولوجيا المعلومات|اللغة العربية|اللغة الإنجليزية|اللغة الفرنسية|فرنسية الصحافة|قصة قصيرة|الترجمة من الإنجليزية إلى العربية|Grammar|Story|Phonetics|Linguistics|Literature|Drama|Poetry|Translation|ICT)$/i;
+ return known.test(first)?first:"مواد غير مصنفة";
+}
+function renderBrowser(){
+ const browser=$("contentBrowser"),grid=$("dashboardGrid");
+ grid.hidden=!!activeType;browser.hidden=!activeType;
+ if(!activeType)return;
+ const type=activeType,subject=activeSubject,host=$("browserList");host.replaceChildren();
+ $("browserCrumb").textContent=subject?feedLabels[type]+" / المواد الدراسية":type==="announcement"?"آخر التحديثات":"المواد الدراسية";
+ $("browserTitle").textContent=subject||feedLabels[type];
+ $("browserBack").textContent=subject?"العودة للمواد":"العودة للأقسام";
+ const records=feedEntries[type]||[];
+ if(type!=="announcement"&&subject===null){
+  const bySubject=new Map();
+  for(const item of records){
+   const name=subjectOf(item);
+   if(!bySubject.has(name))bySubject.set(name,[]);
+   bySubject.get(name).push(item);
   }
-  for(const item of grouped[type]){
-   const section=document.createElement("article");section.className="feed-entry";
-   const title=document.createElement("h4");title.textContent=item.title||"محتوى جديد";
-   const description=document.createElement("p");description.className="feed-description";description.textContent=item.description||"";
-   section.append(title,description);
-   const link=safeResourceUrl(item.url);
-   if(link){const a=document.createElement("a");a.className="feed-link";a.href=link;a.target="_blank";a.rel="noopener noreferrer";a.textContent="فتح المرجع المرفق";section.append(a)}
-   host.append(section);
+  if(!bySubject.size){host.append(node("p","browser-empty",emptyFeed[type]));return}
+  for(const [name,lessons] of bySubject){
+   const btn=node("button","subject-card");btn.type="button";
+   const title=node("span","subject-name");
+   title.append(node("span","subject-icon","📁"),node("span","",name));
+   const count=node("span","subject-count",lessons.length+" "+(type==="lesson"?"دروس":"عناصر"));
+   btn.append(title,count);
+   btn.addEventListener("click",()=>navigateFeed(type,name));
+   host.append(btn);
   }
+  return;
  }
+ const visible=subject===null?records:records.filter(item=>subjectOf(item)===subject);
+ if(!visible.length){host.append(node("p","browser-empty",emptyFeed[type]));return}
+ for(const item of visible){
+  const details=node("details","lesson-details");
+  const summary=node("summary","",item.title||"محتوى جديد");
+  const body=node("div","lesson-body");
+  if(item.description)body.append(node("p","feed-description",item.description));
+  const link=safeResourceUrl(item.url);
+  if(link){const a=node("a","feed-link","فتح المرجع المرفق");a.href=link;a.target="_blank";a.rel="noopener noreferrer";body.append(a)}
+  if(!item.description&&!link)body.append(node("p","feed-description","لا توجد تفاصيل إضافية."));
+  details.append(summary,body);host.append(details);
+ }
+}
+function navigateFeed(type=null,subject=null){
+ activeType=type;activeSubject=subject;renderBrowser();
+ const target=type?$("contentBrowser"):$("dashboardGrid");
+ target.scrollIntoView({behavior:"smooth",block:"start"});
+}
+document.querySelectorAll("[data-feed-type]").forEach(button=>button.addEventListener("click",()=>navigateFeed(button.dataset.feedType)));
+$("browserBack").addEventListener("click",()=>activeSubject!==null?navigateFeed(activeType):navigateFeed());
+function renderFeed(documents){
+ for(const type of Object.keys(feedEntries))feedEntries[type]=[];
+ for(const item of documents){if(Object.hasOwn(feedEntries,item.type))feedEntries[item.type].push(item)}
+ for(const type of Object.keys(feedEntries))$(type+"Count").textContent=String(feedEntries[type].length);
+ renderBrowser();
 }
 function stopFeed(){
  if(feedUnsubscribe){feedUnsubscribe();feedUnsubscribe=null}
@@ -221,7 +269,7 @@ function startFeed(profile){
 }
 
 function showAuthentication(){
-  stopFeed();
+  stopFeed();activeType=null;activeSubject=null;renderFeed([]);
   $("authViews").hidden=false;
   $("dashboard").hidden=true;
 }
