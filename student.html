@@ -121,6 +121,37 @@ html.omega-mobile .dashboard-grid{grid-template-columns:minmax(0,1fr)!important}
 .dash-count{display:grid;place-items:center;min-width:43px;height:43px;border-radius:13px;background:#eaf7ee;color:var(--green);font-size:18px;font-weight:800;flex-shrink:0;font-variant-numeric:tabular-nums}
 @media(max-width:600px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid .dash-item{padding:13px 11px;min-height:91px;gap:7px}.dash-main{gap:7px}.dash-main i{font-size:23px}.dash-title{font-size:13px}.dash-count{min-width:31px;height:33px;border-radius:9px;font-size:14px}}
 html.omega-mobile .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+/* OMEGA in-page study navigator — same student.html URL/document, no new tabs */
+#dashboardGrid[hidden],#studentNavigator[hidden],#studentWelcome[hidden],#feedStatus[hidden]{display:none!important}
+.dashboard-grid .dash-item{font:inherit;cursor:pointer;appearance:none}
+.student-navigator{min-width:0;width:100%;margin-top:14px;padding:18px;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.student-breadcrumb{font-size:11px;display:flex;flex-wrap:wrap;align-items:center;gap:5px;color:var(--muted);margin-bottom:16px;overflow-wrap:anywhere}
+.student-breadcrumb button{border:0;background:transparent;color:var(--green);font:inherit;font-weight:800;padding:4px;cursor:pointer}
+.student-navhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px;flex-wrap:wrap}
+.student-navhead h3{font-size:20px;margin:0 0 4px;color:var(--navy);overflow-wrap:anywhere}
+.student-navcount{font-size:11px;font-weight:700;color:var(--green)}
+.student-back{background:#f2f7fa;border:1px solid #d9e5ec;color:var(--navy);border-radius:10px;padding:8px 12px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.student-navlist{display:grid;gap:11px;min-width:0}
+.student-subject{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #d8e7de;border-radius:13px;padding:14px;background:#fbfefc;color:var(--navy);text-align:right;font:inherit;cursor:pointer}
+.student-subject:hover,.student-lesson:hover{background:#f0f9f3;border-color:#a7d5b6}
+.student-subject-name{font-size:13px;font-weight:800;min-width:0;overflow-wrap:anywhere}
+.student-subject-count{font-size:11px;background:#e8f6ed;border-radius:999px;padding:4px 10px;color:var(--green);font-weight:800;white-space:nowrap}
+.student-lesson{width:100%;display:flex;align-items:center;gap:12px;text-align:right;border:1px solid #dce7ed;background:#fff;border-radius:13px;padding:13px 14px;font:inherit;cursor:pointer;color:var(--navy)}
+.student-lesson-index{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;background:#e9f7ee;color:var(--green);border-radius:9px;font-size:12px;font-weight:800}
+.student-lesson-title{font-size:13px;font-weight:800;flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.8}
+.student-detail{background:#fcfefd;border:1px solid #dce9df;border-radius:13px;padding:17px;min-width:0}
+.student-detail h4{margin:0 0 17px;color:var(--navy);font-size:20px;line-height:1.7;overflow-wrap:anywhere}
+.student-detail-body{font-size:14px;line-height:2.05;color:#40546a;overflow-wrap:anywhere;unicode-bidi:plaintext;min-width:0}
+.student-detail-body p{margin:0 0 16px;white-space:pre-wrap}
+.student-detail-body h2,.student-detail-body h3{font-size:16px;line-height:1.7;color:var(--navy);margin:18px 0 8px}
+.student-detail-body h2{border-right:3px solid var(--red);padding-right:10px}
+.student-detail-body ul{margin:0 0 13px;padding:0 23px 0 0}
+.student-detail-body strong{color:var(--green)}
+.student-resource{display:inline-block;margin-top:13px;color:var(--green);font-size:12px;font-weight:800;overflow-wrap:anywhere}
+.student-empty{padding:19px 13px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:12px;text-align:center}
+.student-navigator button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+@media(max-width:600px){.student-navigator{padding:12px;border-radius:13px}.student-navhead h3{font-size:17px}.student-subject{padding:12px}.student-subject-name,.student-lesson-title{font-size:12px}.student-detail{padding:12px}.student-detail h4{font-size:18px}.student-detail-body{font-size:13px}}
 </style></head><body>
 <div class="topline"></div><header><div class="head-inner">
 <a href="index.html" class="brand"><span class="omega" aria-hidden="true">Ω</span><span><strong>اوميجا للغات</strong><small>OMEGA STUDENT PORTAL</small></span></a>
@@ -170,14 +201,20 @@ html.omega-mobile .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!
 <button class="submit" id="loginSubmit" type="submit" disabled>تسجيل الدخول</button>
 <div class="bottom-line" style="margin-top:18px"><button class="link" id="resetPassword" type="button" disabled>نسيت كلمة المرور؟</button><span class="micro">جديد هنا؟ <button class="link" id="goRegister" type="button">أنشئ حسابك</button></span></div>
 </form></div></div>
-<section class="logged" id="dashboard" hidden><div class="welcome"><span class="section-kicker">لوحة الطالب</span><h2 id="welcomeName">أهلًا بك!</h2><p>مساحتك الدراسية الخاصة في اوميجا.</p><div class="profile-row" id="profileTags"></div></div>
+<section class="logged" id="dashboard" hidden><div class="welcome" id="studentWelcome"><span class="section-kicker">لوحة الطالب</span><h2 id="welcomeName">أهلًا بك!</h2><p>مساحتك الدراسية الخاصة في اوميجا.</p><div class="profile-row" id="profileTags"></div></div>
 <div id="feedStatus" class="notice" role="status" aria-live="polite">جاري تحميل محتوى مرحلتك الدراسية…</div>
 <div class="dashboard-grid" id="dashboardGrid">
-<a class="dash-item" href="learning.html?type=lesson" aria-label="الانتقال إلى الدروس في تبويب جديد"><span class="dash-main"><i aria-hidden="true">📖</i><span><strong class="dash-title">الدروس</strong></span></span><span class="dash-count" id="lessonCount" aria-label="عدد الدروس">0</span></a>
-<a class="dash-item" href="learning.html?type=exercise" aria-label="الانتقال إلى التدريبات في تبويب جديد"><span class="dash-main"><i aria-hidden="true">📝</i><span><strong class="dash-title">التدريبات</strong></span></span><span class="dash-count" id="exerciseCount" aria-label="عدد التدريبات">0</span></a>
-<a class="dash-item" href="learning.html?type=revision" aria-label="الانتقال إلى المراجعات في تبويب جديد"><span class="dash-main"><i aria-hidden="true">📚</i><span><strong class="dash-title">المراجعات</strong></span></span><span class="dash-count" id="revisionCount" aria-label="عدد المراجعات">0</span></a>
-<a class="dash-item" href="learning.html?type=announcement" aria-label="الانتقال إلى الإعلانات في تبويب جديد"><span class="dash-main"><i aria-hidden="true">📣</i><span><strong class="dash-title">الإعلانات</strong></span></span><span class="dash-count" id="announcementCount" aria-label="عدد الإعلانات">0</span></a>
-</div><button id="logout" class="logout" type="button">تسجيل الخروج</button></section>
+<button class="dash-item" type="button" data-omega-type="lesson" aria-label="عرض الدروس في تبويب جديد داخل حساب الطالب"><span class="dash-main"><i aria-hidden="true">📖</i><span><strong class="dash-title">الدروس</strong></span></span><span class="dash-count" id="lessonCount" aria-label="عدد الدروس">0</span></button>
+<button class="dash-item" type="button" data-omega-type="exercise" aria-label="عرض التدريبات في تبويب جديد داخل حساب الطالب"><span class="dash-main"><i aria-hidden="true">📝</i><span><strong class="dash-title">التدريبات</strong></span></span><span class="dash-count" id="exerciseCount" aria-label="عدد التدريبات">0</span></button>
+<button class="dash-item" type="button" data-omega-type="revision" aria-label="عرض المراجعات في تبويب جديد داخل حساب الطالب"><span class="dash-main"><i aria-hidden="true">📚</i><span><strong class="dash-title">المراجعات</strong></span></span><span class="dash-count" id="revisionCount" aria-label="عدد المراجعات">0</span></button>
+<button class="dash-item" type="button" data-omega-type="announcement" aria-label="عرض الإعلانات في تبويب جديد داخل حساب الطالب"><span class="dash-main"><i aria-hidden="true">📣</i><span><strong class="dash-title">الإعلانات</strong></span></span><span class="dash-count" id="announcementCount" aria-label="عدد الإعلانات">0</span></button>
+</div>
+<section id="studentNavigator" class="student-navigator" hidden aria-label="التنقل بين المواد والدروس">
+ <nav class="student-breadcrumb" aria-label="مسار المحتوى"><button id="navigatorHome" type="button">الرئيسية</button><span id="navigatorTrail"></span></nav>
+ <div class="student-navhead"><div><h3 id="navigatorTitle">المواد</h3><span class="student-navcount" id="navigatorCount"></span></div><button id="navigatorBack" class="student-back" type="button">رجوع</button></div>
+ <div id="navigatorList" class="student-navlist" aria-live="polite"></div>
+</section>
+<button id="logout" class="logout" type="button">تسجيل الخروج</button></section>
 </div></div>
 </main>
 <script>
@@ -210,5 +247,5 @@ html.omega-mobile .dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!
   if(new URLSearchParams(location.search).get('view')==='login')selectTab('login');
 })();
 </script>
-<script src="firebase-config.js"></script><script type="module" src="student-auth.js?v=20261115-navigation2"></script>
+<script src="firebase-config.js"></script><script type="module" src="student-auth.js?v=20261115-inpage3"></script>
 </body></html>
