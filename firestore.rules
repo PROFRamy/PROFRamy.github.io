@@ -28,6 +28,104 @@ service cloud.firestore {
         )
       );
     }
+    // Administrator permissions are granted only by Firebase project owners
+    // creating admins/{uid} with enabled=true in the Firebase console.
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true;
+    }
+    function targetKey(d) {
+      return d.stage == 'university'
+        ? (d.department == 'other'
+            ? 'university|other|' + d.departmentOther + '|' + d.level
+            : 'university|' + d.department + '|' + d.level)
+        : d.stage + '|' + d.grade;
+    }
+    function studentContentAccess() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/students/$(request.auth.uid))
+        && resource.data.published == true
+        && resource.data.audienceKey == targetKey(
+          get(/databases/$(database)/documents/students/$(request.auth.uid)).data
+        );
+    }
+    function validContent(d) {
+      return d.keys().hasAll([
+          'ownerId','type','title','description','url','published',
+          'stage','grade','department','level','departmentOther','audienceKey',
+          'createdAt','updatedAt'
+        ])
+        && d.keys().hasOnly([
+          'ownerId','type','title','description','url','published',
+          'stage','grade','department','level','departmentOther','audienceKey',
+          'createdAt','updatedAt'
+        ])
+        && d.ownerId is string && d.ownerId.size() > 0
+        && d.type in ['lesson','exercise','revision','announcement']
+        && d.title is string && d.title.size() >= 3 && d.title.size() <= 140
+        && d.description is string && d.description.size() <= 6000
+        && d.url is string && d.url.size() <= 1200
+        && (d.url == '' || d.url.matches('^https://.+
+      allow get: if signedInOwner(uid);
+      allow list: if false;
+      allow create: if signedInOwner(uid)
+        && request.resource.data.keys().hasAll([
+          'uid','fullName','username','email','nationalId','stage','grade','department','level','createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid','fullName','username','email','nationalId','stage','grade','department','level','departmentOther','createdAt'
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.fullName is string
+        && request.resource.data.fullName.size() >= 2
+        && request.resource.data.fullName.size() <= 70
+        && request.resource.data.username is string
+        && request.resource.data.username.matches('^01[0125][0-9]{8}$')
+        && request.resource.data.nationalId is string
+        && (
+          request.resource.data.nationalId == ''
+          || request.resource.data.nationalId.matches('^[0-9]{14}$')
+        )
+        && request.resource.data.createdAt == request.time
+        && validPlacement(request.resource.data);
+      // Stage/department/grade cannot be changed by a student after registration.
+      // Administrative changes require a trusted backend (not public client-side JS).
+      allow update, delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+))
+        && (d.description.size() > 0 || d.url.size() > 0)
+        && d.published is bool
+        && validPlacement(d)
+        && d.audienceKey is string
+        && d.audienceKey == targetKey(d);
+    }
+    // Only the owner can inspect their own admin designation.
+    // Browser clients cannot grant or change admin roles.
+    match /admins/{uid} {
+      allow get: if signedInOwner(uid);
+      allow list, create, update, delete: if false;
+    }
+    match /contentItems/{itemId} {
+      allow get, list: if isAdmin() || studentContentAccess();
+      allow create: if isAdmin()
+        && validContent(request.resource.data)
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAdmin()
+        && validContent(request.resource.data)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
     match /students/{uid} {
       allow get: if signedInOwner(uid);
       allow list: if false;
