@@ -67,5 +67,26 @@ main{max-width:1180px;margin:35px auto 70px;padding:0 24px}.layout{display:grid;
 </div><button id="logout" class="logout" type="button">تسجيل الخروج</button></section>
 </div></div>
 </main>
+<script>
+/* Keep login/register navigation functional even if Firebase module fails to load. */
+(function(){
+  const reg=document.getElementById('regTab'),login=document.getElementById('loginTab');
+  const regForm=document.getElementById('registerForm'),loginForm=document.getElementById('loginForm');
+  function selectTab(which){
+    const isRegister=which==='register';
+    regForm.classList.toggle('hidden',!isRegister);
+    loginForm.classList.toggle('hidden',isRegister);
+    reg.classList.toggle('active',isRegister);
+    login.classList.toggle('active',!isRegister);
+    reg.setAttribute('aria-selected',String(isRegister));
+    login.setAttribute('aria-selected',String(!isRegister));
+    document.getElementById('formTitle').textContent=isRegister?'أنشئ حسابك وابدأ':'أهلًا بيك من جديد!';
+    document.getElementById('formHint').textContent=isRegister?'حدد بياناتك ومرحلتك الدراسية؛ لتظهر لك مساحة التعلم المناسبة.':'ادخل البريد الإلكتروني وكلمة المرور لفتح حسابك.';
+  }
+  reg.addEventListener('click',()=>selectTab('register'));
+  login.addEventListener('click',()=>selectTab('login'));
+  document.getElementById('goRegister').addEventListener('click',()=>selectTab('register'));
+})();
+</script>
 <script src="firebase-config.js"></script><script type="module" src="student-auth.js"></script>
 </body></html>
