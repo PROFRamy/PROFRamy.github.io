@@ -10,11 +10,11 @@ service cloud.firestore {
         && d.grade in [
           'الصف الأول الابتدائي','الصف الثاني الابتدائي','الصف الثالث الابتدائي',
           'الصف الرابع الابتدائي','الصف الخامس الابتدائي','الصف السادس الابتدائي'
-        ] && d.department == '' && d.level == '' && d.get('departmentOther','') == '' && d.get('departmentOther','') == ''
+        ] && d.department == '' && d.level == '' && d.get('departmentOther','') == ''
       ) || (
         d.stage == 'preparatory'
         && d.grade in ['الصف الأول الإعدادي','الصف الثاني الإعدادي','الصف الثالث الإعدادي']
-        && d.department == '' && d.level == ''
+        && d.department == '' && d.level == '' && d.get('departmentOther','') == ''
       ) || (
         d.stage == 'university' && d.grade == ''
         && d.department in ['english','english_translation','french','other']
