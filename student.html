@@ -28,13 +28,13 @@ main{max-width:1180px;margin:35px auto 70px;padding:0 24px}.layout{display:grid;
 <div class="body">
 <form id="registerForm" class="form-area" autocomplete="on" novalidate>
 <div class="two">
-<div class="field"><label for="fullName">اسم الطالب</label><input id="fullName" autocomplete="name" type="text" maxlength="70" required placeholder="الاسم الكامل"></div>
-<div class="field"><label for="username">اسم المستخدم (User)</label><input id="username" autocomplete="nickname" type="text" maxlength="30" minlength="3" pattern="[A-Za-z0-9_]{3,30}" dir="ltr" required placeholder="example_123"><p class="micro">حروف إنجليزية وأرقام وشرطة سفلية فقط.</p></div>
+<div class="field"><label for="fullName">اسم الطالب</label><input id="fullName" autocomplete="name" type="text" maxlength="70" required placeholder="الاسم الكامل"><span class="field-error" id="fullNameError" role="alert" hidden></span></div>
+<div class="field"><label for="username">اسم المستخدم (User)</label><input id="username" autocomplete="nickname" type="text" maxlength="30" minlength="3" pattern="[A-Za-z0-9_]{3,30}" dir="ltr" required placeholder="example_123"><span class="field-error" id="usernameError" role="alert" hidden></span><p class="micro">حروف إنجليزية وأرقام وشرطة سفلية فقط.</p></div>
 </div>
-<div class="field"><label for="regEmail">البريد الإلكتروني للطالب أو ولي الأمر</label><input id="regEmail" type="email" autocomplete="email" required placeholder="example@email.com"></div>
+<div class="field"><label for="regEmail">البريد الإلكتروني للطالب أو ولي الأمر</label><input id="regEmail" type="email" autocomplete="email" required placeholder="example@email.com"><span class="field-error" id="regEmailError" role="alert" hidden></span></div>
 <div class="two">
-<div class="field"><label for="regPassword">كلمة المرور (Password)</label><div class="password-wrap"><input type="password" id="regPassword" autocomplete="new-password" minlength="8" required placeholder="8 أحرف على الأقل"><button type="button" class="toggle-pass" data-for="regPassword" aria-label="إظهار كلمة المرور">إظهار</button></div></div>
-<div class="field"><label for="confirmPassword">تأكيد كلمة المرور</label><div class="password-wrap"><input type="password" id="confirmPassword" autocomplete="new-password" minlength="8" required placeholder="أعد كتابتها"><button type="button" class="toggle-pass" data-for="confirmPassword" aria-label="إظهار كلمة المرور">إظهار</button></div></div>
+<div class="field"><label for="regPassword">كلمة المرور (Password)</label><div class="password-wrap"><input type="password" id="regPassword" autocomplete="new-password" minlength="8" required placeholder="8 أحرف على الأقل"><span class="field-error" id="regPasswordError" role="alert" hidden></span><button type="button" class="toggle-pass" data-for="regPassword" aria-label="إظهار كلمة المرور">إظهار</button></div></div>
+<div class="field"><label for="confirmPassword">تأكيد كلمة المرور</label><div class="password-wrap"><input type="password" id="confirmPassword" autocomplete="new-password" minlength="8" required placeholder="أعد كتابتها"><span class="field-error" id="confirmPasswordError" role="alert" hidden></span><button type="button" class="toggle-pass" data-for="confirmPassword" aria-label="إظهار كلمة المرور">إظهار</button></div></div>
 </div>
 <div class="divider"></div>
 <div class="field"><span class="flabel">اختر المرحلة الدراسية</span>
@@ -51,8 +51,8 @@ main{max-width:1180px;margin:35px auto 70px;padding:0 24px}.layout{display:grid;
 <button class="submit" type="submit" id="registerSubmit" disabled>إنشاء حساب الطالب</button><p class="micro">يُستخدم البريد الإلكتروني لتسجيل الدخول واستعادة كلمة المرور. لا تكتب كلمة مرور بريدك الإلكتروني هنا.</p>
 </form>
 <form id="loginForm" class="form-area hidden" autocomplete="on" novalidate>
-<div class="field"><label for="loginEmail">البريد الإلكتروني (User)</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="example@email.com"></div>
-<div class="field"><label for="loginPassword">كلمة المرور (Password)</label><div class="password-wrap"><input type="password" id="loginPassword" autocomplete="current-password" required placeholder="كلمة المرور"><button type="button" class="toggle-pass" data-for="loginPassword" aria-label="إظهار كلمة المرور">إظهار</button></div></div>
+<div class="field"><label for="loginEmail">البريد الإلكتروني (User)</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="example@email.com"><span class="field-error" id="loginEmailError" role="alert" hidden></span></div>
+<div class="field"><label for="loginPassword">كلمة المرور (Password)</label><div class="password-wrap"><input type="password" id="loginPassword" autocomplete="current-password" required placeholder="كلمة المرور"><span class="field-error" id="loginPasswordError" role="alert" hidden></span><button type="button" class="toggle-pass" data-for="loginPassword" aria-label="إظهار كلمة المرور">إظهار</button></div></div>
 <div id="loginNotice" class="notice" role="status" aria-live="polite">تسجيل الدخول الفعلي سيتاح بعد ربط خدمة الحسابات الآمنة.</div>
 <button class="submit" id="loginSubmit" type="submit" disabled>تسجيل الدخول</button>
 <div class="bottom-line" style="margin-top:18px"><button class="link" id="resetPassword" type="button" disabled>نسيت كلمة المرور؟</button><span class="micro">جديد هنا؟ <button class="link" id="goRegister" type="button">أنشئ حسابك</button></span></div>
