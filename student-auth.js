@@ -79,6 +79,7 @@ function notice(id,message,style){
 const fieldMessages={
  fullName:"اكتب اسم الطالب (حرفين على الأقل).",
  username:"رقم الموبايل لازم يكون 11 رقمًا، ويبدأ بـ 010 أو 011 أو 012 أو 015.",
+ nationalId:"الرقم القومي يجب أن يتكوّن من 14 رقمًا بالضبط، أو اترك الخانة فارغة.",
  regEmail:"اكتب بريدًا إلكترونيًا صحيحًا، مثل student@gmail.com.",
  regPassword:"كلمة المرور لازم تكون 8 أحرف على الأقل.",
  confirmPassword:"تأكيد كلمة المرور غير مطابق. اكتب نفس كلمة المرور.",
@@ -98,6 +99,7 @@ function checkField(id){
  let error="";
  if(id==="fullName"&&input.value.trim().length<2)error=fieldMessages[id];
  if(id==="username"&&!/^01[0125][0-9]{8}$/.test(input.value.trim()))error=fieldMessages[id];
+ if(id==="nationalId"&&input.value.trim()!==""&&!/^[0-9]{14}$/.test(input.value.trim()))error=fieldMessages[id];
  if((id==="regEmail"||id==="loginEmail")&&(!input.value.trim()||!input.checkValidity()))error=fieldMessages[id];
  if(id==="regPassword"&&input.value.length<8)error=fieldMessages[id];
  if(id==="confirmPassword"&&input.value!==$("regPassword").value)error=fieldMessages[id];
@@ -106,15 +108,17 @@ function checkField(id){
  fieldError(id,error);return !error;
 }
 // Keep phone input digits-only, including Arabic/Eastern Arabic numerals pasted from phones.
-function normalizeMobile(value){
+function normalizeDigits(value,maxLength){
  return String(value).replace(/[٠-٩۰-۹]/g,char=>{
   const code=char.charCodeAt(0);
   return String(code>=0x06F0 ? code-0x06F0 : code-0x0660);
- }).replace(/[^0-9]/g,"").slice(0,11);
+ }).replace(/[^0-9]/g,"").slice(0,maxLength);
 }
-$("username").addEventListener("input",event=>{
- const input=event.currentTarget, cleaned=normalizeMobile(input.value);
- if(input.value!==cleaned)input.value=cleaned;
+[["username",11],["nationalId",14]].forEach(([id,maxLength])=>{
+ $(id).addEventListener("input",event=>{
+   const input=event.currentTarget,cleaned=normalizeDigits(input.value,maxLength);
+   if(input.value!==cleaned)input.value=cleaned;
+ });
 });
 Object.keys(fieldMessages).forEach(id=>{
  const input=$(id);if(!input)return;
@@ -193,7 +197,7 @@ async function loadProfile(user){
 }
 registerForm.addEventListener("submit",async event=>{
   event.preventDefault();if(!auth||loading)return;
-  if(!validateFields(["fullName","username","regEmail","regPassword","confirmPassword"])){notice("regNotice","راجع الخانات المحددة بالأحمر وصحح البيانات قبل المتابعة.","error");return}
+  if(!validateFields(["fullName","username","regEmail","nationalId","regPassword","confirmPassword"])){notice("regNotice","راجع الخانات المحددة بالأحمر وصحح البيانات قبل المتابعة.","error");return}
   let group;try{group=selection()}catch(err){$("stageError").textContent=err.message;$("stageError").hidden=false;$("stageGrid").classList.add("has-error");notice("regNotice",err.message,"error");$("stageError").scrollIntoView({behavior:"smooth",block:"center"});return}
   const fullName=$("fullName").value.trim(),username=$("username").value.trim(),email=$("regEmail").value.trim().toLowerCase();
   const password=$("regPassword").value;
@@ -204,7 +208,8 @@ registerForm.addEventListener("submit",async event=>{
   try{
     const credentials=await authLib.createUserWithEmailAndPassword(auth,email,password);
     const student=credentials.user;
-    const profile={uid:student.uid,fullName,username,email,...group,createdAt:firestoreLib.serverTimestamp()};
+    const nationalId=$("nationalId").value.trim();
+    const profile={uid:student.uid,fullName,username,email,nationalId,...group,createdAt:firestoreLib.serverTimestamp()};
     await firestoreLib.setDoc(firestoreLib.doc(db,"students",student.uid),profile);
     try{await authLib.updateProfile(student,{displayName:fullName})}catch(_){}
     notice("regNotice","تم إنشاء الحساب بنجاح.","good");registerForm.reset();Object.keys(fieldMessages).forEach(id=>fieldError(id,""));dashboard(profile);
