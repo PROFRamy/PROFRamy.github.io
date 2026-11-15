@@ -44,6 +44,18 @@ export function audioSourcePlan(raw){
  if(!href)return {mode:"invalid",hint:"رابط التسجيل غير صالح. استخدم رابط HTTPS صحيحًا."};
  const u=new URL(href);
  const host=u.hostname.toLowerCase();
+ if(host==="t.me"||host==="www.t.me"||host==="telegram.me"||host==="www.telegram.me"){
+  // Telegram message URLs, including forum-topic links /username/topicId/messageId,
+  // are web/app message links, not downloadable MP3 streams.
+  const validMessage=/^\/(?:[A-Za-z0-9_]{5,32}|c\/\d+)\/\d+(?:\/\d+)?\/?$/.test(u.pathname);
+  return {
+   mode:validMessage?"telegram":"unsupported",
+   src:href,
+   hint:validMessage
+    ?"رابط Telegram ده بيفتح رسالة (أو رسالة داخل موضوع)، مش ملف MP3 مباشر. هنظهر زر «الاستماع عبر Telegram» بدل مشغل صوت لا يعمل. لازم يكون للطالب حق الوصول للرسالة."
+    :"رابط Telegram لا يبدو كرابط رسالة محددة. انسخ رابط الرسالة نفسها من Telegram، مثل t.me/group/topic/message."
+  };
+ }
  if(host==="drive.google.com"){
   let id="";
   const m=u.pathname.match(/^\/file\/d\/([A-Za-z0-9_-]{10,})(?:\/|$)/);
@@ -115,6 +127,13 @@ function audioCard(m){
  const header=node("div","omega-media-title","🎧 "+m.title);
  const plan=audioSourcePlan(m.url);
  el.append(header);
+ if(plan.mode==="telegram"){
+  const message=node("p","omega-media-caption","التسجيل موجود داخل رسالة على Telegram. افتح الرسالة واضغط تشغيل هناك؛ قد تحتاج إلى الاشتراك في الجروب أو تسجيل الدخول إلى Telegram.");
+  const button=link(plan.src,"🎧 الاستماع عبر Telegram");
+  button.classList.add("omega-media-telegram");
+  el.append(message,button);
+  return el;
+ }
  if(plan.mode==="drive"){
   const frame=node("iframe","omega-media-drive-frame");
   frame.src=plan.src;frame.title="معاينة تسجيل Google Drive: "+m.title;
