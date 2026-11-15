@@ -64,6 +64,32 @@ html.omega-mobile .tabs{margin:0 15px!important}
 html.omega-mobile .body,html.omega-mobile .logged{padding:18px 15px!important}
 html.omega-mobile .two{grid-template-columns:minmax(0,1fr)!important}
 html.omega-mobile .stage-grid,html.omega-mobile .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+/* Unified academic selection cards and centered typography */
+.stage .choice{min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;padding:15px 10px}
+.stage .choice>.ico{width:47px;height:47px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:#fff1f0;color:var(--red);flex:0 0 auto}
+.stage:nth-child(2) .ico{background:#e9f7ee;color:var(--green)}
+.stage:nth-child(3) .ico{background:#f0f2f5;color:#718090}
+.stage:nth-child(4) .ico{background:#edf3f9;color:var(--navy)}
+.stage .choice>.ico svg{display:block;width:27px;height:27px}
+.stage .choice>span:last-child{display:flex;align-items:center;justify-content:center;flex-direction:column;width:100%;min-width:0}
+.stage strong,.stage small{width:100%;display:block;text-align:center;line-height:1.55}
+.stage strong{font-size:13px}
+.stage small{font-size:11px}
+.choice-grid .opt{min-width:0;display:flex;align-items:stretch}
+.choice-grid .opt span{width:100%;min-height:76px;display:flex;align-items:center;justify-content:center;line-height:1.65;text-align:center;white-space:normal;overflow-wrap:anywhere;padding:12px;font-size:12px}
+#departmentOtherBox{margin:13px 0 15px}
+#departmentOtherBox input{text-align:right;direction:rtl}
+#uniLevels .opt span{min-height:72px}
+@media(max-width:600px){
+ .stage .choice{min-height:105px;padding:11px 6px}
+ .stage .choice>.ico{width:40px;height:40px}
+ .stage .choice>.ico svg{width:24px;height:24px}
+ .stage strong{font-size:11px}.stage small{font-size:10px}
+ .choice-grid .opt span{min-height:68px;font-size:11px;padding:9px}
+}
+html.omega-mobile .stage .choice{min-height:100px!important}
+html.omega-mobile .choice-grid .opt span{min-height:68px!important}
 </style></head><body>
 <div class="topline"></div><header><div class="head-inner">
 <a href="index.html" class="brand"><span class="omega" aria-hidden="true">Ω</span><span><strong>اوميجا للغات</strong><small>OMEGA STUDENT PORTAL</small></span></a>
@@ -91,15 +117,15 @@ html.omega-mobile .stage-grid,html.omega-mobile .choice-grid{grid-template-colum
 <div class="divider"></div>
 <div class="field"><span class="flabel">اختر المرحلة الدراسية</span>
 <div class="stage-grid" id="stageGrid">
-<label class="stage"><input type="radio" name="stage" value="primary"><span class="choice"><span class="ico">📚</span><span><strong>المرحلة الابتدائية</strong><small>من الأول إلى السادس</small></span></span></label>
-<label class="stage"><input type="radio" name="stage" value="preparatory"><span class="choice"><span class="ico">📗</span><span><strong>المرحلة الإعدادية</strong><small>الأول والثاني والثالث</small></span></span></label>
-<label class="stage unavailable"><input type="radio" name="stage" value="secondary" disabled><span class="choice"><span class="ico">🔒</span><span><strong>المرحلة الثانوية</strong><small>غير متاحة حاليًا</small></span></span></label>
-<label class="stage"><input type="radio" name="stage" value="university"><span class="choice"><span class="ico">🎓</span><span><strong>المرحلة الجامعية</strong><small>آداب – جامعة طنطا</small></span></span></label>
+<label class="stage"><input type="radio" name="stage" value="primary"><span class="choice"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3.5" width="13" height="17" rx="2"/><path d="M9 8h5M9 12h5M18 6h2v11l-2 2M4 7h2M4 12h2M4 17h2"/></svg></span><span><strong>المرحلة الابتدائية</strong><small>من الأول إلى السادس</small></span></span></label>
+<label class="stage"><input type="radio" name="stage" value="preparatory"><span class="choice"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5c-2.8-2-5.6-2.1-9-1v15c3.4-1.1 6.2-1 9 1 2.8-2 5.6-2.1 9-1V4c-3.4-1.1-6.2-1-9 1z"/><path d="M12 5v15M6 8h3M15 8h3M6 11h3M15 11h3"/></svg></span><span><strong>المرحلة الإعدادية</strong><small>الأول والثاني والثالث</small></span></span></label>
+<label class="stage unavailable"><input type="radio" name="stage" value="secondary" disabled><span class="choice"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="16" height="12" rx="1"/><path d="m3 9 9-6 9 6M10 21v-6h4v6M8 12h.01M16 12h.01"/><rect x="15" y="2" width="7" height="7" rx="2" fill="#fff"/><path d="M17 5V4a1.5 1.5 0 0 1 3 0v1M17 5h3v3h-3z"/></svg></span><span><strong>المرحلة الثانوية</strong><small>غير متاحة حاليًا</small></span></span></label>
+<label class="stage"><input type="radio" name="stage" value="university"><span class="choice"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 10 10-5 10 5-10 5-10-5zM6 12v5c3 3 9 3 12 0v-5M22 10v7M22 19v1"/></svg></span><span><strong>المرحلة الجامعية</strong><small>آداب – جامعة طنطا</small></span></span></label>
 </div></div>
 <p id="stageError" class="selection-error" role="alert" hidden></p>
 <div id="primaryChoices" class="subchoices hidden"><h3>📘 اختر الصف الابتدائي</h3><div class="choice-grid" id="primaryGrades"></div></div>
 <div id="prepChoices" class="subchoices hidden"><h3>📗 اختر الصف الإعدادي</h3><div class="choice-grid" id="prepGrades"></div></div>
-<div id="uniChoices" class="subchoices hidden"><h3>🎓 كلية الآداب – جامعة طنطا</h3><div class="field"><span class="flabel">اختر القسم</span><div class="choice-grid cols2" id="departments"></div></div><div id="uniLevelsBox" class="hidden"><span class="flabel">اختر المستوى الدراسي</span><div class="choice-grid" id="uniLevels"></div></div></div>
+<div id="uniChoices" class="subchoices hidden"><h3>🎓 كلية الآداب – جامعة طنطا</h3><div class="field"><span class="flabel">اختر القسم</span><div class="choice-grid cols2" id="departments"></div></div><div class="field hidden" id="departmentOtherBox"><label for="departmentOther">اسم القسم الآخر</label><input id="departmentOther" type="text" maxlength="70" autocomplete="off" placeholder="اكتب اسم القسم هنا"><span class="field-error" id="departmentOtherError" role="alert" hidden></span></div><div id="uniLevelsBox" class="hidden"><span class="flabel">اختر المستوى الدراسي</span><div class="choice-grid" id="uniLevels"></div></div></div>
 <div id="regNotice" class="notice" role="status" aria-live="polite">بوابة التسجيل قيد ربط نظام الحسابات الآمن. يمكنك استعراض الأقسام الآن، لكن إنشاء حساب فعلي غير متاح حتى إتمام الربط.</div>
 <button class="submit" type="submit" id="registerSubmit" disabled>إنشاء حساب الطالب</button><p class="micro">يُستخدم البريد الإلكتروني لتسجيل الدخول واستعادة كلمة المرور. لا تكتب كلمة مرور بريدك الإلكتروني هنا.</p>
 </form>
