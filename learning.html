@@ -3,103 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#162c48">
-<meta name="description" content="مكتبة مواد ودروس وتدريبات ومراجعات طلاب سنتر اوميجا">
-<title>المواد والدروس | بوابة طلاب اوميجا</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--navy:#162c48;--red:#c62828;--green:#16803c;--ink:#171717;--muted:#65788c;--line:#dee7ee;--bg:#f5f9fd}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;max-width:100%;min-width:0;overflow-x:hidden}
-body{font:14px/1.9 Cairo,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-a{color:inherit;text-decoration:none}
-a:focus-visible{outline:3px solid var(--green);outline-offset:3px}
-button{font:inherit}
-[hidden]{display:none!important}
-.topline{height:5px;background:linear-gradient(90deg,var(--green) 0 33%,var(--red) 33% 66%,var(--navy) 66%)}
-header{background:#fff;border-bottom:1px solid var(--line)}
-.top{max-width:1100px;margin:auto;min-height:75px;padding:13px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:11px;min-width:0}
-.logo{display:grid;place-items:center;background:var(--navy);color:white;border-radius:13px;width:44px;height:44px;font-size:31px;font-family:Arial,sans-serif;flex-shrink:0}
-.brand-name{display:block;font-weight:800;font-size:17px;color:var(--navy);line-height:1.35}
-.brand small{display:block;color:var(--red);font-size:10px;font-weight:700;letter-spacing:.65px}
-.home-link{border:1px solid var(--line);border-radius:10px;background:white;padding:8px 13px;color:var(--navy);font-weight:800;font-size:12px}
-main{max-width:990px;margin:28px auto 64px;padding:0 18px;min-width:0}
-.hero{border:1px solid #e0eaf1;background:white;border-radius:23px;padding:25px 28px;margin-bottom:18px;box-shadow:0 13px 35px #182e4307}
-.eyebrow{color:var(--red);font-weight:800;font-size:12px}
-.hero h1{color:var(--navy);font-size:clamp(21px,4vw,30px);line-height:1.6;margin:3px 0 4px;overflow-wrap:anywhere}
-.hero p{font-size:13px;color:var(--muted);margin:0}
-.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
-.pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 12px;border:1px solid #d7e8df;background:#f0faf3;color:var(--green);font-size:11px;font-weight:800}
-.card{border:1px solid var(--line);border-radius:21px;background:white;padding:22px 25px;min-height:185px;box-shadow:0 13px 35px #182e4307}
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-.crumbs{color:var(--muted);font-size:12px;overflow-wrap:anywhere}
-.crumbs a{color:var(--green);font-weight:800}
-.count{border-radius:999px;background:#edf8f0;color:var(--green);font-size:12px;font-weight:800;padding:5px 13px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.entries{display:grid;gap:12px}
-.link-card{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px;border:1px solid #dbe7e0;border-radius:15px;background:#fbfefc;transition:background .17s,border-color .17s}
-.link-card:hover{background:#f0f9f3;border-color:#9ac9a9}
-.entry-head{display:flex;gap:11px;align-items:center;min-width:0}
-.entry-icon{display:grid;place-items:center;background:#eaf6ed;border-radius:13px;width:43px;height:43px;font-size:22px;flex-shrink:0}
-.entry-name{display:block;color:var(--navy);font-size:14px;font-weight:800;overflow-wrap:anywhere;line-height:1.65}
-.entry-subtitle{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-.entry-count{color:var(--green);background:#e8f7ed;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0}
-.arrow{font-size:18px;color:var(--green);font-weight:800;flex-shrink:0}
-.lesson-card{display:flex;align-items:center;gap:14px;border:1px solid #dfe9ef;border-radius:14px;background:#fff;padding:15px 17px;min-width:0}
-.lesson-card:hover{border-color:#9dcfae;background:#f8fcf9}
-.lesson-index{display:grid;place-items:center;width:34px;height:34px;background:#eaf6ed;color:var(--green);border-radius:11px;font-size:13px;font-weight:800;flex-shrink:0}
-.lesson-name{font-size:14px;color:var(--navy);font-weight:800;flex:1;overflow-wrap:anywhere}
-.lesson-link-icon{color:var(--green);flex-shrink:0}
-.detail-title{font-size:clamp(20px,3.5vw,27px);color:var(--navy);line-height:1.6;margin:0 0 17px;overflow-wrap:anywhere}
-.lesson-content{font-size:15px;line-height:2.15;overflow-wrap:anywhere;unicode-bidi:plaintext;min-width:0}
-.lesson-content p{margin:0 0 16px;white-space:pre-wrap}
-.lesson-content h2,.lesson-content h3{font-size:17px;line-height:1.75;margin:19px 0 9px;color:var(--navy)}
-.lesson-content h2{border-right:3px solid var(--red);padding-right:12px}
-.lesson-content ul{padding:0 22px 0 0;margin:0 0 16px}
-.lesson-content li{margin-bottom:5px}
-.lesson-content strong{color:var(--green);font-weight:800}
-.resource-link{display:inline-flex;align-items:center;gap:7px;border:1px solid #b4d9bf;background:#effaf2;padding:9px 14px;border-radius:11px;color:var(--green);font-weight:800;font-size:12px;margin-top:12px;overflow-wrap:anywhere}
-.state{border:1px solid #e9ddbe;background:#fffaf0;color:#79591f;border-radius:12px;padding:15px 17px;margin:0 0 18px;font-size:13px;line-height:1.85}
-.state.error{background:#fff2f0;border-color:#f0c8c1;color:#a52c26}
-.state.good{background:#eef8f1;border-color:#cee6d3;color:#176c36}
-.empty{border:1px dashed var(--line);border-radius:12px;padding:30px 16px;text-align:center;color:var(--muted);font-size:13px}
-.back-link{display:inline-flex;align-items:center;gap:6px;background:#f2f7fa;border:1px solid var(--line);border-radius:9px;padding:7px 12px;color:var(--navy);font-weight:700;font-size:11px;margin:0 0 16px}
-@media(max-width:600px){
- .top{padding:12px;min-height:62px}.brand-name{font-size:14px}.brand small{font-size:9px}.logo{width:38px;height:38px;font-size:27px}.home-link{font-size:10px;padding:7px 9px}
- main{margin:13px auto 35px;padding:0 11px}.hero{padding:17px 16px;border-radius:16px}.hero p{font-size:11px}
- .card{padding:15px 13px;border-radius:16px}
- .grid{grid-template-columns:minmax(0,1fr);gap:10px}
- .link-card{padding:13px 12px}.entry-name,.lesson-name{font-size:13px}.entry-icon{width:37px;height:37px;font-size:19px}.lesson-card{padding:12px}
- .lesson-content{font-size:14px;line-height:2.1}
-}
-</style>
+<meta name="robots" content="noindex">
+<title>الانتقال إلى بوابة طلاب اوميجا</title>
+<script>
+/* Compatibility for old shared lesson URLs. All content now lives inside student.html. */
+(function(){
+ const old=new URLSearchParams(location.search);
+ const type=old.get("type")||"lesson";
+ const route=new URLSearchParams({type});
+ for(const key of ["subject","id"]){
+   if(old.has(key))route.set(key,old.get(key));
+ }
+ const target=new URL("student.html",location.href);
+ target.hash="omega-study?"+route.toString();
+ location.replace(target.href);
+})();
+</script>
+<style>body{font:16px/1.9 system-ui,sans-serif;text-align:center;margin:15vh auto;padding:24px;max-width:600px;color:#162c48}a{color:#16803c}</style>
 </head>
-<body>
-<div class="topline"></div>
-<header><div class="top">
-<a class="brand" href="student.html"><span class="logo" aria-hidden="true">Ω</span><span><span class="brand-name">اوميجا للغات</span><small>OMEGA STUDENT PORTAL</small></span></a>
-<a class="home-link" href="student.html">العودة لحساب الطالب</a>
-</div></header>
-<main>
-<section class="hero">
-<span class="eyebrow">المكتبة التعليمية</span>
-<h1 id="pageTitle">الدروس والمواد الدراسية</h1>
-<p id="pageSubtitle">تظهر لك المواد والدروس التابعة لصفك أو قسمك الدراسي فقط.</p>
-<div class="pills"><span class="pill" id="studentGroup" hidden></span></div>
-</section>
-<div class="state" id="pageState" role="status" aria-live="polite">جاري التحقق من حسابك وتحميل المحتوى...</div>
-<section class="card" id="contentCard" hidden>
-<div class="toolbar">
-<nav class="crumbs" id="breadcrumbs" aria-label="مسار التصفح"></nav>
-<span class="count" id="pageCount"></span>
-</div>
-<a class="back-link" href="student.html" id="pageBack">← العودة إلى أقسام الطالب</a>
-<div id="contentArea"></div>
-</section>
-</main>
-<script src="firebase-config.js"></script>
-<script type="module" src="learning.js?v=20261115-navigation2"></script>
-</body></html>
+<body><p>تم دمج الدروس والمواد داخل صفحة الطالب نفسها.</p><a href="student.html">العودة إلى بوابة الطلاب</a></body>
+</html>
