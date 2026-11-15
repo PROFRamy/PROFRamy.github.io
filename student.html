@@ -13,12 +13,40 @@ main{max-width:1180px;margin:35px auto 70px;padding:0 24px}.layout{display:grid;
 .logged{padding:28px 32px 34px}.welcome{padding:21px;background:#eaf6ed;border-radius:16px;border:1px solid #c9e6d2}.welcome h2{font-size:23px;margin:0;color:var(--green)}.welcome p{font-size:12px;color:#435f53;margin:4px 0}.profile-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.profile-row span{font-size:11px;font-weight:800;padding:7px 12px;border-radius:30px;background:white;color:var(--navy);border:1px solid var(--line)}.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.dash-item{border:1px solid var(--line);padding:19px;border-radius:14px;background:white}.dash-item i{font-style:normal;font-size:25px}.dash-item h3{font-size:14px;color:var(--navy);margin:5px 0 4px}.dash-item p{font-size:11px;color:var(--muted);margin:0}.logout{background:#fff;color:var(--red);border:1px solid #f0cccc;padding:10px 18px;border-radius:10px;font-size:12px;font-weight:900;margin-top:22px}
 @media(max-width:950px){.layout{grid-template-columns:1fr}.aside{position:static;min-height:0;padding:27px}.aside h1{font-size:31px}.illustration{display:none}.feature{display:inline-flex;margin-left:18px;border:0}}@media(max-width:600px){main{margin:18px auto 55px;padding:0 12px}.head-inner{padding:12px}.brand strong{font-size:14px}.back{font-size:10px;padding:9px}.aside{padding:23px;border-radius:18px}.aside h1{font-size:27px}.aside p{font-size:12px}.feature{font-size:11px}.panel{border-radius:18px}.panel-head{padding:22px 18px 0}.panel-head h2{font-size:23px}.tabs{margin:0 18px}.body,.logged{padding:19px 18px 23px}.two{grid-template-columns:1fr;gap:0}.stage .choice{padding:9px;gap:7px}.stage strong{font-size:11px}.stage small{font-size:9px}.stage .ico{width:31px;height:31px;font-size:18px}.subchoices{padding:13px 9px}.opt span{font-size:10px}.dashboard-grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}
 
-/* Mobile layout: prevent grid intrinsic widths from forcing a desktop-sized canvas. */
-html,body{max-width:100%;overflow-x:clip}
-.layout,.layout>*,.panel,.body,.form-area,.tabs,.tab,.head-inner,.brand{min-width:0}
-.panel{width:100%}
-@media(max-width:950px){.layout{display:flex;flex-direction:column;gap:16px}.layout>.aside,.layout>.panel{width:100%;max-width:100%;flex:none}.aside{min-height:0}.panel{overflow:hidden}}
-@media(max-width:600px){main{width:100%;max-width:100%;margin:14px auto 45px;padding:0 12px}.head-inner{width:100%;gap:8px;flex-wrap:wrap}.brand{flex:1}.brand strong{font-size:13px}.brand small{font-size:9px}.back{white-space:normal;text-align:center;font-size:10px}.aside{padding:19px;border-radius:17px}.aside h1{font-size:24px;margin:12px 0 8px}.aside p{font-size:12px}.feature{display:none}.panel-head{padding:19px 15px 0}.tabs{margin:0 15px}.tab{font-size:12px;padding:12px 5px;line-height:1.5}.body,.logged{padding:18px 15px 22px}.stage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.field,.password-wrap,input{max-width:100%}}
+/* Responsive containment: always size the page to the real device viewport. */
+html,body{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+body{position:relative}
+header,.topline,main,.layout,.layout>*,.aside,.panel,.panel-head,.body,.form-area,.tabs,.tab,.head-inner,.brand{min-width:0;max-width:100%}
+main,.layout,.panel{width:100%}
+.layout{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+.panel{overflow:hidden}
+.brand>span:last-child{min-width:0}
+.aside h1,.aside p,.panel-head h2,.hint,.stage strong,.stage small{overflow-wrap:anywhere}
+@media(max-width:950px){
+  .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+  .layout>.aside,.layout>.panel{width:100%;max-width:100%;min-width:0}
+  .aside{position:static;min-height:0}
+}
+@media(max-width:600px){
+  main{width:100%;max-width:100%;margin:14px auto 45px;padding:0 12px}
+  .head-inner{width:100%;min-width:0;gap:8px;flex-wrap:wrap;padding:12px}
+  .brand{flex:1 1 155px}
+  .brand strong{font-size:13px}
+  .brand small{font-size:9px}
+  .back{flex:0 1 auto;max-width:100%;white-space:normal;text-align:center;font-size:10px}
+  .aside{padding:19px;border-radius:17px}
+  .aside h1{font-size:24px;margin:12px 0 8px}
+  .aside p{font-size:12px}
+  .feature{display:none}
+  .panel{border-radius:17px}
+  .panel-head{padding:19px 15px 0}
+  .tabs{margin:0 15px}
+  .tab{font-size:12px;padding:12px 5px;line-height:1.5}
+  .body,.logged{padding:18px 15px 22px}
+  .stage-grid,.choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two{grid-template-columns:minmax(0,1fr)}
+  .field,.password-wrap,input{max-width:100%}
+}
 </style></head><body>
 <div class="topline"></div><header><div class="head-inner">
 <a href="index.html" class="brand"><span class="omega" aria-hidden="true">Ω</span><span><strong>اوميجا للغات</strong><small>OMEGA STUDENT PORTAL</small></span></a>
